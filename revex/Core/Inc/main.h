@@ -54,7 +54,8 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+void sample();
+void print();
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

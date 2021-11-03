@@ -1,24 +1,16 @@
-/*
- * icm20948.h
- *
- *  Created on: Sep 28, 2021
- *      Author: isaac
- */
-
-
 #ifndef __ICM20948_H__
 #define	__ICM20948_H__
 
 
-#include "spi.h"			// header from stm32cubemx code generate
+#include "spi.h"
 #include <stdbool.h>
 
 
 /* User Configuration */
-#define ICM20948_SPI					(&hspi2)
+#define ICM20948_SPI					(&hspi1)
 
-#define ICM20948_SPI_CS_PIN_PORT		GPIOB
-#define ICM20948_SPI_CS_PIN_NUMBER		GPIO_PIN_12
+#define ICM20948_SPI_CS_PIN_PORT		GPIOA
+#define ICM20948_SPI_CS_PIN_NUMBER		GPIO_PIN_15
 
 
 /* Defines */
@@ -71,26 +63,22 @@ typedef enum
 
 /* Main Functions */
 
-// sensor init function.
-// if sensor id is wrong, it is stuck in while.
-void icm20948_init();
-void ak09916_init();
-
 // 16 bits ADC value. raw data.
+void icm20948_gyro_read_raw(uint8_t *** data);
+void icm20948_accel_read_raw(uint8_t *** data);
+bool ak09916_mag_read_raw(uint8_t *** data);
+
+// Convert 16 bits ADC value to their unit.
 void icm20948_gyro_read(axises* data);
 void icm20948_accel_read(axises* data);
 bool ak09916_mag_read(axises* data);
-
-// Convert 16 bits ADC value to their unit.
 void icm20948_gyro_read_dps(axises* data);
 void icm20948_accel_read_g(axises* data);
 bool ak09916_mag_read_uT(axises* data);
 
-
 /* Sub Functions */
 bool icm20948_who_am_i();
 bool ak09916_who_am_i();
-uint8_t read_single_icm20948_reg(userbank ub, uint8_t reg);
 
 void icm20948_device_reset();
 void ak09916_soft_reset();

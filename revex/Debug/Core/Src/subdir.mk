@@ -5,10 +5,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../Core/Src/adc.c \
+../Core/Src/ble.c \
 ../Core/Src/gpio.c \
+../Core/Src/i2c.c \
 ../Core/Src/icm20948.c \
+../Core/Src/icu.c \
 ../Core/Src/main.c \
+../Core/Src/pwm.c \
 ../Core/Src/spi.c \
 ../Core/Src/stm32l0xx_hal_msp.c \
 ../Core/Src/stm32l0xx_it.c \
@@ -19,10 +22,13 @@ C_SRCS += \
 ../Core/Src/usart.c 
 
 OBJS += \
-./Core/Src/adc.o \
+./Core/Src/ble.o \
 ./Core/Src/gpio.o \
+./Core/Src/i2c.o \
 ./Core/Src/icm20948.o \
+./Core/Src/icu.o \
 ./Core/Src/main.o \
+./Core/Src/pwm.o \
 ./Core/Src/spi.o \
 ./Core/Src/stm32l0xx_hal_msp.o \
 ./Core/Src/stm32l0xx_it.o \
@@ -33,10 +39,13 @@ OBJS += \
 ./Core/Src/usart.o 
 
 C_DEPS += \
-./Core/Src/adc.d \
+./Core/Src/ble.d \
 ./Core/Src/gpio.d \
+./Core/Src/i2c.d \
 ./Core/Src/icm20948.d \
+./Core/Src/icu.d \
 ./Core/Src/main.d \
+./Core/Src/pwm.d \
 ./Core/Src/spi.d \
 ./Core/Src/stm32l0xx_hal_msp.d \
 ./Core/Src/stm32l0xx_it.d \
@@ -49,5 +58,5 @@ C_DEPS += \
 
 # Each subdirectory must supply rules for building sources it contributes
 Core/Src/%.o: ../Core/Src/%.c Core/Src/subdir.mk
-	arm-none-eabi-gcc "$<" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32L053xx -c -I../Core/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
+	arm-none-eabi-gcc "$<" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32L081xx -c -I../Core/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
 

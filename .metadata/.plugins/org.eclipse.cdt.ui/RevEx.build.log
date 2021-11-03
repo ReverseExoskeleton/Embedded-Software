@@ -1,0 +1,10 @@
+15:48:43 **** Incremental Build of configuration Debug for project RevEx ****
+make -j12 all 
+arm-none-eabi-size   RevEx.elf 
+   text	   data	    bss	    dec	    hex	filename
+  21684	    216	   2016	  23916	   5d6c	RevEx.elf
+Finished building: default.size.stdout
+ 
+
+15:48:44 Build Finished. 0 errors, 0 warnings. (took 737ms)
+
