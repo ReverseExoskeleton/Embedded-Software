@@ -1,10 +1,20 @@
-15:48:43 **** Incremental Build of configuration Debug for project RevEx ****
+12:46:02 **** Incremental Build of configuration Debug for project RevEx ****
 make -j12 all 
+arm-none-eabi-gcc "../Core/Src/spi.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32L081xx -c -I../Core/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/spi.d" -MT"Core/Src/spi.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/spi.o"
+arm-none-eabi-gcc -o "RevEx.elf" @"objects.list"   -mcpu=cortex-m0plus -T"C:\Users\isaac\RevEx-Workspace\Embedded-Software\RevEx\STM32L081KZTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="RevEx.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: RevEx.elf
+ 
 arm-none-eabi-size   RevEx.elf 
+arm-none-eabi-objdump -h -S  RevEx.elf  > "RevEx.list"
+arm-none-eabi-objcopy  -O binary  RevEx.elf  "RevEx.bin"
    text	   data	    bss	    dec	    hex	filename
-  21684	    216	   2016	  23916	   5d6c	RevEx.elf
+  21472	    216	   2016	  23704	   5c98	RevEx.elf
 Finished building: default.size.stdout
  
+Finished building: RevEx.list
+ 
+Finished building: RevEx.bin
+ 
 
-15:48:44 Build Finished. 0 errors, 0 warnings. (took 737ms)
+12:46:03 Build Finished. 0 errors, 0 warnings. (took 1s.106ms)
 

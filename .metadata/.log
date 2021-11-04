@@ -84,3 +84,33 @@ localhost:2331: The system tried to join a drive to a directory on a joined driv
 java.lang.Exception: localhost:2331: The system tried to join a drive to a directory on a joined drive.
 	at org.eclipse.cdt.dsf.mi.service.command.AbstractMIControl$RxThread.processMIOutput(AbstractMIControl.java:1014)
 	at org.eclipse.cdt.dsf.mi.service.command.AbstractMIControl$RxThread.run(AbstractMIControl.java:843)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug 4 0 2021-11-03 16:38:25.665
+!MESSAGE Error - No active DSF-Session. tmpSessionId = 13 (contextManager row 121)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug 4 0 2021-11-03 16:38:25.669
+!MESSAGE Existing sessions are:
+
+!ENTRY com.st.stm32cube.ide.mcu.debug 4 0 2021-11-03 16:38:25.674
+!MESSAGE Error - No active DSF-Session. tmpSessionId = 13 (contextManager row 121)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug 4 0 2021-11-03 16:38:25.678
+!MESSAGE Existing sessions are:
+!SESSION 2021-11-04 12:29:15.200 -----------------------------------------------
+eclipse.buildId=Version 1.7.0
+java.version=11.0.10
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY org.eclipse.core.resources 2 10035 2021-11-04 12:29:26.946
+!MESSAGE The workspace exited with unsaved changes in the previous session; refreshing workspace to recover changes.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2021-11-04 12:29:32.342
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2021-11-04 12:29:32.433
+!MESSAGE Log4j initialized with config file C:\Users\isaac\RevEx-Workspace\Embedded-Software\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2021-11-04 12:29:37.712
+!MESSAGE Started RMI Server, listening on port 41337

@@ -36,17 +36,12 @@ bool ak09916_mag_read_raw(uint8_t *** data)
 	uint8_t drdy, hofl;	// data ready, overflow
 
 	drdy = read_single_ak09916_reg(MAG_ST1) & 0x01;
-	HAL_UART_Transmit(&huart1, (uint8_t*)tp, 7, 100);
 	if(!drdy)	return false;
-	HAL_UART_Transmit(&huart1, (uint8_t*)tp, 7, 100);
 
 	**data = read_multiple_ak09916_reg(MAG_HXL, 6);
-	HAL_UART_Transmit(&huart1, (uint8_t*)tp, 7, 100);
 
 	hofl = read_single_ak09916_reg(MAG_ST2) & 0x08;
-	HAL_UART_Transmit(&huart1, (uint8_t*)tp, 7, 100);
 	if(hofl)	return false;
-	HAL_UART_Transmit(&huart1, (uint8_t*)tp, 7, 100);
 
 	return true;
 }

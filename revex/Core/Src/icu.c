@@ -61,7 +61,6 @@ void IMU_read_all_raw(uint8_t ** buffer1, uint8_t ** buffer2, uint8_t ** buffer3
 {
 	while(!ak09916_mag_read_raw(&buffer3))
 	{
-		HAL_UART_Transmit(&huart1, (uint8_t*)tmp, 7, 100);
 		attempt++;
 	}
 	icm20948_gyro_read_raw(&buffer1);

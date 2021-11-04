@@ -37,7 +37,13 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+enum mode
+{
+    input,
+    output,
+    alternate,
+    analog
+};
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -56,6 +62,9 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 void sample();
 void print();
+void setup_gpio(GPIO_TypeDef  *GPIOx, int num, enum mode m);
+void toggle_on(GPIO_TypeDef  *GPIOx, int num);
+void toggle_off(GPIO_TypeDef  *GPIOx, int num);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

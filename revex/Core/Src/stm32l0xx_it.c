@@ -145,6 +145,7 @@ void SysTick_Handler(void)
 /**
   * @brief This function handles TIM3 global interrupt.
   */
+int gate = 0;
 void TIM3_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM3_IRQn 0 */
@@ -162,11 +163,20 @@ void TIM3_IRQHandler(void)
 void TIM6_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM6_IRQn 0 */
-
+	icm20948_who_am_i();
+	if(gate == 0)
+	{
+		toggle_on(GPIOA, 1);
+		gate = 1;
+	}
+	else
+	{
+		toggle_off(GPIOA, 1);
+		gate = 0;
+	}
   /* USER CODE END TIM6_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
   /* USER CODE BEGIN TIM6_IRQn 1 */
-
   /* USER CODE END TIM6_IRQn 1 */
 }
 
