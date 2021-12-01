@@ -18,7 +18,10 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include "imu.h"
 #include "main.h"
+#include "adc.h"
+#include "dma.h"
 #include "i2c.h"
 #include "spi.h"
 #include "tim.h"
@@ -27,9 +30,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "icu.h"
 #include "ble.h"
 #include "pwm.h"
+#include "icm20948.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -39,11 +42,10 @@ uint32_t AD_RES = 0;
 uint32_t Period = 0;
 uint32_t Duty_cycle = 1000;
 uint32_t val = 0;
-uint8_t * gyro_buffer;
-uint8_t * accel_buffer;
-uint8_t * mag_buffer;
+int gate = 0;
 char temp [50] = "hello\r\n";
-uint16_t adc_buf[1024];
+char sleep [16] = "Going to Sleep\r\n";
+uint16_t adc_buf[4096];
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -78,7 +80,7 @@ void initialize_gpiob(void)
     RCC->IOPENR |= RCC_IOPENR_GPIOBEN;
 }
 
-void setup_gpio(GPIO_TypeDef  *GPIOx, int num, enum mode m)
+void setup_gpio(GPIO_TypeDef  *GPIOx, int num, enum mode m, int pupd, int speed)
 {
     if(num > 15)
     {
@@ -88,24 +90,124 @@ void setup_gpio(GPIO_TypeDef  *GPIOx, int num, enum mode m)
     if(m == input)
     {
     	GPIOx->MODER &= ~(3<<(2*num));
+    	GPIOx->PUPDR &= ~(3<<(2*num));
+    	//pull up = 1; pull down = 0
+    	if(pupd)
+    	{
+    		GPIOx->PUPDR |= (1<<(2*num));
+    	}
+    	else
+    	{
+    		GPIOx->PUPDR |= (2<<(2*num));
+    	}
+    	if(speed == 0)
+    	{
+    		GPIOx->OSPEEDR &= ~(3<<(2*num));
+    	}
+    	if(speed == 1)
+    	{
+    		GPIOx->OSPEEDR &= ~(3<<(2*num));
+    		GPIOx->OSPEEDR |= (1<<(2*num));
+    	}
+    	if(speed == 2)
+		{
+			GPIOx->OSPEEDR &= ~(3<<(2*num));
+			GPIOx->OSPEEDR |= (2<<(2*num));
+		}
+    	else
+    	{
+    		GPIOx->OSPEEDR |= (3<<(2*num));
+    	}
     }
     //output mode
     if(m == output)
     {
     	GPIOx->MODER &= ~(3<<(2*num));
     	GPIOx->MODER |= (1<<(2*num));
+    	if(speed == 0)
+		{
+			GPIOx->OSPEEDR &= ~(3<<(2*num));
+		}
+		if(speed == 1)
+		{
+			GPIOx->OSPEEDR &= ~(3<<(2*num));
+			GPIOx->OSPEEDR |= (1<<(2*num));
+		}
+		if(speed == 2)
+		{
+			GPIOx->OSPEEDR &= ~(3<<(2*num));
+			GPIOx->OSPEEDR |= (2<<(2*num));
+		}
+		else
+		{
+			GPIOx->OSPEEDR |= (3<<(2*num));
+		}
     }
     //alt mode
     if(m == alternate)
     {
     	GPIOx->MODER &= ~(3<<(2*num));
     	GPIOx->MODER |= (2<<(2*num));
+    	if(speed == 0)
+		{
+			GPIOx->OSPEEDR &= ~(3<<(2*num));
+		}
+		if(speed == 1)
+		{
+			GPIOx->OSPEEDR &= ~(3<<(2*num));
+			GPIOx->OSPEEDR |= (1<<(2*num));
+		}
+		if(speed == 2)
+		{
+			GPIOx->OSPEEDR &= ~(3<<(2*num));
+			GPIOx->OSPEEDR |= (2<<(2*num));
+		}
+		else
+		{
+			GPIOx->OSPEEDR |= (3<<(2*num));
+		}
     }
     //analog mode
     if(m == analog)
     {
     	GPIOx->MODER |= (3<<(2*num));
+    	if(speed == 0)
+		{
+			GPIOx->OSPEEDR &= ~(3<<(2*num));
+		}
+		if(speed == 1)
+		{
+			GPIOx->OSPEEDR &= ~(3<<(2*num));
+			GPIOx->OSPEEDR |= (1<<(2*num));
+		}
+		if(speed == 2)
+		{
+			GPIOx->OSPEEDR &= ~(3<<(2*num));
+			GPIOx->OSPEEDR |= (2<<(2*num));
+		}
+		else
+		{
+			GPIOx->OSPEEDR |= (3<<(2*num));
+		}
     }
+    else
+    {
+    	//error state
+    }
+}
+
+void setup_alt(GPIO_TypeDef  *GPIOx, int num, int mode)
+{
+	if(num < 8)
+	{
+		GPIOx->AFR[0] &= ~(0xf<<(4*(num)));
+		GPIOx->AFR[0] |= mode << (4*(num));
+	}
+	else
+	{
+		GPIOx->AFR[1] &= ~(0xf<<(4*(num-8)));
+		GPIOx->AFR[1] |= mode << (4*(num-8));
+	}
 }
 
 void toggle_on(GPIO_TypeDef  *GPIOx, int num)
@@ -131,18 +233,35 @@ int get_gpio(GPIO_TypeDef  *GPIOx, int num)
 void setup_tim2()
 {
 	RCC->APB1RSTR |= RCC_APB1RSTR_TIM2RST;
+	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM2RST;
     RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
-    TIM2->PSC = 16000;
-    TIM2->ARR = 100;
-    TIM2->DIER |= TIM_DIER_UDE | TIM_DIER_CC2DE;
+    setup_gpio(GPIOA, 1, alternate, 0, 1);
+    setup_alt(GPIOA, 1, 2);
+    //TIM2->DIER |= TIM_DIER_UDE | TIM_DIER_CC2DE;
     TIM2->CR1 |= TIM_CR1_ARPE;
-    TIM2->EGR |= TIM_EGR_UG | TIM_EGR_CC2G;
-    TIM2->CCMR1 |= TIM_CCMR1_OC2PE | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1;
+    //TIM2->EGR |= TIM_EGR_UG; // TIM_EGR_CC2G;
+    TIM2->CCMR1 |= TIM_CCMR1_OC2PE + TIM_CCMR1_OC2M_2 + TIM_CCMR1_OC2M_1;
+    TIM2->PSC = 16000;
+    TIM2->ARR = 50;
+    TIM2->CCR2 = 40;
     TIM2->CCER |= TIM_CCER_CC2E;
-    TIM2->CCR2 = 90;
     TIM2->CR1 |= TIM_CR1_CEN;
+    TIM2->EGR |= TIM_EGR_UG;
 }
 
+void setup_tim6()
+{
+	RCC->APB1RSTR |= RCC_APB1RSTR_TIM6RST;
+	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM6RST;
+	RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
+	TIM6->PSC = 16000;
+	TIM6->ARR = 100;
+	TIM6->DIER |= TIM_DIER_UIE;
+	NVIC_EnableIRQ(TIM6_DAC_IRQn); /* (1) */
+	NVIC_SetPriority(TIM6_DAC_IRQn,0);
+	TIM6->CR1 |= TIM_CR1_CEN;
+	TIM6->EGR |= TIM_EGR_UG;
+}
 
 
 void PWM_config()
@@ -173,56 +292,71 @@ void ADC_config()
 {
 	RCC->AHBRSTR |= RCC_AHBRSTR_DMA1RST;
 	RCC->APB2RSTR |= RCC_APB2RSTR_ADCRST;
-	RCC->AHBENR |= RCC_AHBENR_DMA1EN; /* (1) */
+	RCC->AHBRSTR &= ~RCC_AHBRSTR_DMA1RST;
+	RCC->APB2RSTR &= ~RCC_APB2RSTR_ADCRST;
+	RCC->AHBENR |= RCC_AHBENR_DMA1EN;
 	RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
-	setup_gpio(GPIOB, 0, analog);
-	DMA1_CSELR->CSELR &= (uint32_t)(~DMA_CSELR_C1S); /* (2) */
-	DMA1_Channel1->CPAR = (uint32_t) (&(ADC1->DR)); /* (4) */
-	DMA1_Channel1->CMAR = (uint32_t) (&AD_RES); /* (5) */
-	DMA1_Channel1->CNDTR = 1; /* (6) */
-	DMA1_Channel1->CCR |= DMA_CCR_MSIZE_0 | DMA_CCR_PSIZE_0 | DMA_CCR_TEIE | DMA_CCR_CIRC; /* (7) */
-	DMA1_Channel1->CCR |= DMA_CCR_EN; /* (8) */
-	//NVIC_EnableIRQ(DMA1_Channel1_IRQn); /* (1) */
-	//NVIC_SetPriority(DMA1_Channel1_IRQn,0);
-	if ((ADC1->CR & ADC_CR_ADEN) != 0) /* (1) */
+	setup_gpio(GPIOA, 7, analog, 0, 1);
+	DMA1_CSELR->CSELR &= (uint32_t)(~DMA_CSELR_C1S);
+	DMA1_Channel1->CPAR = (uint32_t) (&(ADC1->DR));
+	DMA1_Channel1->CMAR = (uint32_t) (&AD_RES);
+	DMA1_Channel1->CNDTR = 1;
+	DMA1_Channel1->CCR |= DMA_CCR_MSIZE_0 | DMA_CCR_PSIZE_0 | DMA_CCR_TEIE | DMA_CCR_TCIE | DMA_CCR_CIRC;
+	DMA1_Channel1->CCR |= DMA_CCR_EN;
+	NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+	NVIC_SetPriority(DMA1_Channel1_IRQn,0);
+	if ((ADC1->CR & ADC_CR_ADEN) != 0)
 	{
-		ADC1->CR |= ADC_CR_ADDIS; /* (2) */
+		ADC1->CR |= ADC_CR_ADDIS;
 	}
 	ADC1->IER = ADC_IER_EOCALIE |ADC_IER_EOCIE | ADC_IER_EOSIE | ADC_IER_OVRIE | ADC_IER_ADRDYIE;
-	ADC1->CR |= ADC_CR_ADCAL; /* (3) */
-	while ((ADC1->ISR & ADC_ISR_EOCAL) == 0) /* (4) */
+	ADC1->CR |= ADC_CR_ADCAL;
+	while ((ADC1->ISR & ADC_ISR_EOCAL) == 0)
 	{}
 	ADC1->ISR |= ADC_ISR_EOCAL;
 
-	ADC1->CFGR1 |= ADC_CFGR1_DMAEN | ADC_CFGR1_DMACFG; /* (2) */
-	ADC1->CHSELR = ADC_CHSELR_CHSEL8; /* (3) */
-	ADC1->SMPR |= ADC_SMPR_SMP_0 | ADC_SMPR_SMP_1 | ADC_SMPR_SMP_2; /* (4) */
-	ADC1->ISR |= ADC_ISR_ADRDY; /* (1) */
-	ADC1->CR |= ADC_CR_ADEN; /* (2) */
+	ADC1->CFGR1 |= ADC_CFGR1_DMAEN | ADC_CFGR1_DMACFG;
+	ADC1->CHSELR = ADC_CHSELR_CHSEL7;
+	ADC1->SMPR |= ADC_SMPR_SMP_0 | ADC_SMPR_SMP_1 | ADC_SMPR_SMP_2;
+	ADC1->ISR |= ADC_ISR_ADRDY;
+	ADC1->CR |= ADC_CR_ADEN;
 	if ((ADC1->CFGR1 & ADC_CFGR1_AUTOFF) == 0)
 	{
-		 while ((ADC1->ISR & ADC_ISR_ADRDY) == 0) /* (3) */
+		 while ((ADC1->ISR & ADC_ISR_ADRDY) == 0)
 		 {}
 	}
-	/* Performs the AD conversion */
 }
 
-void print(void)
+void print_adc(void)
 {
 	char buffer[20];
-	int l = sprintf(buffer, "%u\r\n", AD_RES);
+	uint8_t value = 0;
+	if(AD_RES < 420 || AD_RES > 1598)
+	{
+		value = 255;
+	}
+	else
+	{
+		value = AD_RES * 10201/100000 - 13;
+	}
+	int l = sprintf(buffer, "SHW,0018,%04x", AD_RES);
 	HAL_UART_Transmit(&huart1, (uint8_t*)buffer, l, 100);
 }
 
 void sample()
 {
-	//HAL_ADC_Start_DMA(&hadc, (uint32_t*)adc_buf, 2);
-	ADC1->CR |= ADC_CR_ADSTP;
-	ADC1->ISR &= 0x00;
-	while(ADC1->CR == ADC_CR_ADSTART)
-	{}
+	HAL_ADC_Start_DMA(&hadc, &AD_RES, 1);
+	print_adc();
+	print_imu_raw();
+	if(AD_RES > 2000)
+	{
+		asm("NOP");
+	}
+	/*ADC1->CR |= ADC_CR_ADSTP;
+	ADC1->ISR |= 0xf;
+	while(ADC1->CR == ADC_CR_ADSTART){}
 	ADC1->CR |= ADC_CR_ADSTART;
-	//6print();
+	print_adc();*/
 	//HAL_ADC_Start_IT(&hadc);
 	//__asm__("cpsid if");
 	//IMU_read_all_raw(&gyro_buffer, &accel_buffer, &mag_buffer);
@@ -230,6 +364,35 @@ void sample()
 	//BLE_transmit(gyro_buffer, accel_buffer, mag_buffer);
 	//__asm__("cpsie if");
 }
+
+void debug_imu()
+{
+	char buffer4[100] = {0};
+	int l = sprintf(buffer4, "gyro.x gyro.y gyro.z accel.x accel.y accel.z mag.x mag.y mag.z\r\n");
+	HAL_UART_Transmit(&huart1, (uint8_t*)buffer4, l, 100);
+	while(1)
+	{
+		IMU_read_all();
+	}
+}
+
+void reset_reg()
+{
+	RCC->AHBRSTR |= RCC_AHBRSTR_DMA1RST;
+	RCC->APB2RSTR |= RCC_APB2RSTR_ADCRST;
+	RCC->APB1RSTR |= RCC_APB1RSTR_TIM2RST;
+	RCC->APB1RSTR |= RCC_APB1RSTR_TIM6RST;
+	RCC->IOPRSTR |= RCC_IOPRSTR_GPIOARST;
+	RCC->IOPRSTR |= RCC_IOPRSTR_GPIOBRST;
+	RCC->IOPRSTR &= ~RCC_IOPRSTR_GPIOBRST;
+	RCC->IOPRSTR &= ~RCC_IOPRSTR_GPIOARST;
+	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM6RST;
+	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM2RST;
+	RCC->AHBRSTR &= ~RCC_AHBRSTR_DMA1RST;
+	RCC->APB2RSTR &= ~RCC_APB2RSTR_ADCRST;
+	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+}
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -266,29 +429,38 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  //MX_TIM3_Init();
+  MX_TIM3_Init();
   MX_I2C1_Init();
-  MX_SPI1_Init();
+  //MX_SPI1_Init();
   MX_USART1_UART_Init();
+  MX_DMA_Init();
   MX_TIM6_Init();
+  MX_ADC_Init();
   /* USER CODE BEGIN 2 */
-  //ADC_config();
+  HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
+  setup_gpio(GPIOA, 1, output, 0, 0);
+  toggle_off(GPIOA, 1);
   IMU_Init();
   BLE_Init();
-  HAL_Delay(1000);
-  MX_TIM6_Init();
-  //setup_tim2();
-  setup_gpio(GPIOA, 1, output);
-  toggle_off(GPIOA, 1);
+  //HAL_UART_Transmit(&huart1, (uint8_t*)sleep, 16, 100);
+  //reset_reg();
+  //HAL_PWR_EnterSTANDBYMode();
+  //ADC_config();
+  HAL_Delay(3000);
+  setup_tim2();
+  //setup_tim6();
   HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  //debug_imu();
   while (1)
   {
+	  IMU_read_all_raw();
+	  asm("NOP");
     /* USER CODE END WHILE */
-	  //IMU_read_all_raw(&gyro_buffer, &accel_buffer, &mag_buffer);
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

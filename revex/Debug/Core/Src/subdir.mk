@@ -5,11 +5,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../Core/Src/adc.c \
 ../Core/Src/ble.c \
+../Core/Src/dma.c \
 ../Core/Src/gpio.c \
 ../Core/Src/i2c.c \
 ../Core/Src/icm20948.c \
-../Core/Src/icu.c \
+../Core/Src/imu.c \
 ../Core/Src/main.c \
 ../Core/Src/pwm.c \
 ../Core/Src/spi.c \
@@ -22,11 +24,13 @@ C_SRCS += \
 ../Core/Src/usart.c 
 
 OBJS += \
+./Core/Src/adc.o \
 ./Core/Src/ble.o \
+./Core/Src/dma.o \
 ./Core/Src/gpio.o \
 ./Core/Src/i2c.o \
 ./Core/Src/icm20948.o \
-./Core/Src/icu.o \
+./Core/Src/imu.o \
 ./Core/Src/main.o \
 ./Core/Src/pwm.o \
 ./Core/Src/spi.o \
@@ -39,11 +43,13 @@ OBJS += \
 ./Core/Src/usart.o 
 
 C_DEPS += \
+./Core/Src/adc.d \
 ./Core/Src/ble.d \
+./Core/Src/dma.d \
 ./Core/Src/gpio.d \
 ./Core/Src/i2c.d \
 ./Core/Src/icm20948.d \
-./Core/Src/icu.d \
+./Core/Src/imu.d \
 ./Core/Src/main.d \
 ./Core/Src/pwm.d \
 ./Core/Src/spi.d \

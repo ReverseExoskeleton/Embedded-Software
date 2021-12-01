@@ -1,6 +1,74 @@
-12:46:02 **** Incremental Build of configuration Debug for project RevEx ****
+20:47:08 **** Incremental Build of configuration Debug for project RevEx ****
 make -j12 all 
-arm-none-eabi-gcc "../Core/Src/spi.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32L081xx -c -I../Core/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/spi.d" -MT"Core/Src/spi.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/spi.o"
+arm-none-eabi-gcc "../Core/Src/ble.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32L081xx -c -I../Core/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/ble.d" -MT"Core/Src/ble.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/ble.o"
+../Core/Src/ble.c: In function 'HAL_UART_RxCpltCallback':
+../Core/Src/ble.c:35:15: warning: comparison of distinct pointer types lacks a cast
+   35 |  if(rx_buffer == "AOK")
+      |               ^~
+../Core/Src/ble.c:35:15: warning: comparison with string literal results in unspecified behavior [-Waddress]
+../Core/Src/ble.c:39:20: warning: comparison of distinct pointer types lacks a cast
+   39 |  else if(rx_buffer == "Reb")
+      |                    ^~
+../Core/Src/ble.c:39:20: warning: comparison with string literal results in unspecified behavior [-Waddress]
+../Core/Src/ble.c: In function 'BLE_Init_IT':
+../Core/Src/ble.c:104:14: warning: pointer targets in passing argument 1 of 'strcmp' differ in signedness [-Wpointer-sign]
+  104 |   if(!strcmp(rx_buffer,"Reboot\r\n"))
+      |              ^~~~~~~~~
+      |              |
+      |              uint8_t * {aka unsigned char *}
+In file included from ../Core/Src/ble.c:6:
+c:\st\stm32cubeide_1.7.0\stm32cubeide\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_2.0.0.202105311346\tools\arm-none-eabi\include\string.h:36:14: note: expected 'const char *' but argument is of type 'uint8_t *' {aka 'unsigned char *'}
+   36 | int  strcmp (const char *, const char *);
+      |              ^~~~~~~~~~~~
+../Core/Src/ble.c:115:14: warning: pointer targets in passing argument 1 of 'strcmp' differ in signedness [-Wpointer-sign]
+  115 |   if(!strcmp(rx_buffer,"AOK\r\n"))
+      |              ^~~~~~~~~
+      |              |
+      |              uint8_t * {aka unsigned char *}
+In file included from ../Core/Src/ble.c:6:
+c:\st\stm32cubeide_1.7.0\stm32cubeide\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_2.0.0.202105311346\tools\arm-none-eabi\include\string.h:36:14: note: expected 'const char *' but argument is of type 'uint8_t *' {aka 'unsigned char *'}
+   36 | int  strcmp (const char *, const char *);
+      |              ^~~~~~~~~~~~
+../Core/Src/ble.c: In function 'BLE_transmit':
+../Core/Src/ble.c:199:41: warning: format '%x' expects a matching 'unsigned int' argument [-Wformat=]
+  199 |  int l = sprintf(buffer1, "%x%x%x%x%x%x%x%x", data1[0], data1[1], data1[2], data1[3], data1[4], data1[5]);
+      |                                        ~^
+      |                                         |
+      |                                         unsigned int
+../Core/Src/ble.c:199:43: warning: format '%x' expects a matching 'unsigned int' argument [-Wformat=]
+  199 |  int l = sprintf(buffer1, "%x%x%x%x%x%x%x%x", data1[0], data1[1], data1[2], data1[3], data1[4], data1[5]);
+      |                                          ~^
+      |                                           |
+      |                                           unsigned int
+../Core/Src/ble.c:200:41: warning: format '%x' expects a matching 'unsigned int' argument [-Wformat=]
+  200 |  int m = sprintf(buffer2, "%x%x%x%x%x%x%x%x", data2[0], data2[1], data2[2], data2[3], data2[4], data2[5]);
+      |                                        ~^
+      |                                         |
+      |                                         unsigned int
+../Core/Src/ble.c:200:43: warning: format '%x' expects a matching 'unsigned int' argument [-Wformat=]
+  200 |  int m = sprintf(buffer2, "%x%x%x%x%x%x%x%x", data2[0], data2[1], data2[2], data2[3], data2[4], data2[5]);
+      |                                          ~^
+      |                                           |
+      |                                           unsigned int
+../Core/Src/ble.c:201:41: warning: format '%x' expects a matching 'unsigned int' argument [-Wformat=]
+  201 |  int n = sprintf(buffer3, "%x%x%x%x%x%x%x%x", data3[0], data3[1], data3[2], data3[3], data3[4], data3[5]);
+      |                                        ~^
+      |                                         |
+      |                                         unsigned int
+../Core/Src/ble.c:201:43: warning: format '%x' expects a matching 'unsigned int' argument [-Wformat=]
+  201 |  int n = sprintf(buffer3, "%x%x%x%x%x%x%x%x", data3[0], data3[1], data3[2], data3[3], data3[4], data3[5]);
+      |                                          ~^
+      |                                           |
+      |                                           unsigned int
+../Core/Src/ble.c:201:6: warning: unused variable 'n' [-Wunused-variable]
+  201 |  int n = sprintf(buffer3, "%x%x%x%x%x%x%x%x", data3[0], data3[1], data3[2], data3[3], data3[4], data3[5]);
+      |      ^
+../Core/Src/ble.c:200:6: warning: unused variable 'm' [-Wunused-variable]
+  200 |  int m = sprintf(buffer2, "%x%x%x%x%x%x%x%x", data2[0], data2[1], data2[2], data2[3], data2[4], data2[5]);
+      |      ^
+../Core/Src/ble.c:199:6: warning: unused variable 'l' [-Wunused-variable]
+  199 |  int l = sprintf(buffer1, "%x%x%x%x%x%x%x%x", data1[0], data1[1], data1[2], data1[3], data1[4], data1[5]);
+      |      ^
 arm-none-eabi-gcc -o "RevEx.elf" @"objects.list"   -mcpu=cortex-m0plus -T"C:\Users\isaac\RevEx-Workspace\Embedded-Software\RevEx\STM32L081KZTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="RevEx.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 Finished building target: RevEx.elf
  
@@ -8,10 +76,173 @@ arm-none-eabi-size   RevEx.elf
 arm-none-eabi-objdump -h -S  RevEx.elf  > "RevEx.list"
 arm-none-eabi-objcopy  -O binary  RevEx.elf  "RevEx.bin"
    text	   data	    bss	    dec	    hex	filename
-  21472	    216	   2016	  23704	   5c98	RevEx.elf
+  31384	    312	   2344	  34040	   84f8	RevEx.elf
 Finished building: default.size.stdout
+ 
+Finished building: RevEx.bin
  
 Finished building: RevEx.list
  
+20:47:25 **** Incremental Build of configuration Debug for project RevEx ****
+make -j12 all 
+arm-none-eabi-size   RevEx.elf 
+   text	   data	    bss	    dec	    hex	filename
+  31384	    312	   2344	  34040	   84f8	RevEx.elf
+Finished building: default.size.stdout
+ 
+20:48:28 **** Incremental Build of configuration Debug for project RevEx ****
+make -j12 all 
+arm-none-eabi-gcc "../Core/Src/ble.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32L081xx -c -I../Core/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/ble.d" -MT"Core/Src/ble.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/ble.o"
+../Core/Src/ble.c: In function 'HAL_UART_RxCpltCallback':
+../Core/Src/ble.c:35:15: warning: comparison of distinct pointer types lacks a cast
+   35 |  if(rx_buffer == "AOK")
+      |               ^~
+../Core/Src/ble.c:35:15: warning: comparison with string literal results in unspecified behavior [-Waddress]
+../Core/Src/ble.c:39:20: warning: comparison of distinct pointer types lacks a cast
+   39 |  else if(rx_buffer == "Reb")
+      |                    ^~
+../Core/Src/ble.c:39:20: warning: comparison with string literal results in unspecified behavior [-Waddress]
+../Core/Src/ble.c: In function 'BLE_Init_IT':
+../Core/Src/ble.c:104:14: warning: pointer targets in passing argument 1 of 'strcmp' differ in signedness [-Wpointer-sign]
+  104 |   if(!strcmp(rx_buffer,"Reboot\r\n"))
+      |              ^~~~~~~~~
+      |              |
+      |              uint8_t * {aka unsigned char *}
+In file included from ../Core/Src/ble.c:6:
+c:\st\stm32cubeide_1.7.0\stm32cubeide\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_2.0.0.202105311346\tools\arm-none-eabi\include\string.h:36:14: note: expected 'const char *' but argument is of type 'uint8_t *' {aka 'unsigned char *'}
+   36 | int  strcmp (const char *, const char *);
+      |              ^~~~~~~~~~~~
+../Core/Src/ble.c:115:14: warning: pointer targets in passing argument 1 of 'strcmp' differ in signedness [-Wpointer-sign]
+  115 |   if(!strcmp(rx_buffer,"AOK\r\n"))
+      |              ^~~~~~~~~
+      |              |
+      |              uint8_t * {aka unsigned char *}
+In file included from ../Core/Src/ble.c:6:
+c:\st\stm32cubeide_1.7.0\stm32cubeide\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_2.0.0.202105311346\tools\arm-none-eabi\include\string.h:36:14: note: expected 'const char *' but argument is of type 'uint8_t *' {aka 'unsigned char *'}
+   36 | int  strcmp (const char *, const char *);
+      |              ^~~~~~~~~~~~
+../Core/Src/ble.c: In function 'BLE_transmit':
+../Core/Src/ble.c:199:41: warning: format '%x' expects a matching 'unsigned int' argument [-Wformat=]
+  199 |  int l = sprintf(buffer1, "%x%x%x%x%x%x%x%x", data1[0], data1[1], data1[2], data1[3], data1[4], data1[5]);
+      |                                        ~^
+      |                                         |
+      |                                         unsigned int
+../Core/Src/ble.c:199:43: warning: format '%x' expects a matching 'unsigned int' argument [-Wformat=]
+  199 |  int l = sprintf(buffer1, "%x%x%x%x%x%x%x%x", data1[0], data1[1], data1[2], data1[3], data1[4], data1[5]);
+      |                                          ~^
+      |                                           |
+      |                                           unsigned int
+../Core/Src/ble.c:200:41: warning: format '%x' expects a matching 'unsigned int' argument [-Wformat=]
+  200 |  int m = sprintf(buffer2, "%x%x%x%x%x%x%x%x", data2[0], data2[1], data2[2], data2[3], data2[4], data2[5]);
+      |                                        ~^
+      |                                         |
+      |                                         unsigned int
+../Core/Src/ble.c:200:43: warning: format '%x' expects a matching 'unsigned int' argument [-Wformat=]
+  200 |  int m = sprintf(buffer2, "%x%x%x%x%x%x%x%x", data2[0], data2[1], data2[2], data2[3], data2[4], data2[5]);
+      |                                          ~^
+      |                                           |
+      |                                           unsigned int
+../Core/Src/ble.c:201:41: warning: format '%x' expects a matching 'unsigned int' argument [-Wformat=]
+  201 |  int n = sprintf(buffer3, "%x%x%x%x%x%x%x%x", data3[0], data3[1], data3[2], data3[3], data3[4], data3[5]);
+      |                                        ~^
+      |                                         |
+      |                                         unsigned int
+../Core/Src/ble.c:201:43: warning: format '%x' expects a matching 'unsigned int' argument [-Wformat=]
+  201 |  int n = sprintf(buffer3, "%x%x%x%x%x%x%x%x", data3[0], data3[1], data3[2], data3[3], data3[4], data3[5]);
+      |                                          ~^
+      |                                           |
+      |                                           unsigned int
+../Core/Src/ble.c:201:6: warning: unused variable 'n' [-Wunused-variable]
+  201 |  int n = sprintf(buffer3, "%x%x%x%x%x%x%x%x", data3[0], data3[1], data3[2], data3[3], data3[4], data3[5]);
+      |      ^
+../Core/Src/ble.c:200:6: warning: unused variable 'm' [-Wunused-variable]
+  200 |  int m = sprintf(buffer2, "%x%x%x%x%x%x%x%x", data2[0], data2[1], data2[2], data2[3], data2[4], data2[5]);
+      |      ^
+../Core/Src/ble.c:199:6: warning: unused variable 'l' [-Wunused-variable]
+  199 |  int l = sprintf(buffer1, "%x%x%x%x%x%x%x%x", data1[0], data1[1], data1[2], data1[3], data1[4], data1[5]);
+      |      ^
+arm-none-eabi-gcc -o "RevEx.elf" @"objects.list"   -mcpu=cortex-m0plus -T"C:\Users\isaac\RevEx-Workspace\Embedded-Software\RevEx\STM32L081KZTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="RevEx.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: RevEx.elf
+ 
+arm-none-eabi-size   RevEx.elf 
+arm-none-eabi-objdump -h -S  RevEx.elf  > "RevEx.list"
+arm-none-eabi-objcopy  -O binary  RevEx.elf  "RevEx.bin"
+   text	   data	    bss	    dec	    hex	filename
+  31384	    312	   2344	  34040	   84f8	RevEx.elf
+Finished building: default.size.stdout
+ 
 Finished building: RevEx.bin
+ 
+Finished building: RevEx.list
+ 
+20:50:55 **** Incremental Build of configuration Debug for project RevEx ****
+make -j12 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32L081xx -c -I../Core/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'print_adc':
+../Core/Src/main.c:342:39: warning: format '%x' expects argument of type 'unsigned int', but argument 3 has type 'uint32_t' {aka 'long unsigned int'} [-Wformat=]
+  342 |  int l = sprintf(buffer, "SHW,0018,%04x", AD_RES);
+      |                                    ~~~^   ~~~~~~
+      |                                       |   |
+      |                                       |   uint32_t {aka long unsigned int}
+      |                                       unsigned int
+      |                                    %04lx
+../Core/Src/main.c:333:10: warning: variable 'value' set but not used [-Wunused-but-set-variable]
+  333 |  uint8_t value = 0;
+      |          ^~~~~
+arm-none-eabi-gcc -o "RevEx.elf" @"objects.list"   -mcpu=cortex-m0plus -T"C:\Users\isaac\RevEx-Workspace\Embedded-Software\RevEx\STM32L081KZTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="RevEx.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: RevEx.elf
+ 
+arm-none-eabi-size   RevEx.elf 
+arm-none-eabi-objdump -h -S  RevEx.elf  > "RevEx.list"
+arm-none-eabi-objcopy  -O binary  RevEx.elf  "RevEx.bin"
+   text	   data	    bss	    dec	    hex	filename
+  31384	    312	   2344	  34040	   84f8	RevEx.elf
+Finished building: default.size.stdout
+ 
+Finished building: RevEx.bin
+ 
+Finished building: RevEx.list
+ 
+21:00:28 **** Incremental Build of configuration Debug for project RevEx ****
+make -j12 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32L081xx -c -I../Core/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/pwm.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32L081xx -c -I../Core/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/pwm.d" -MT"Core/Src/pwm.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/pwm.o"
+../Core/Src/pwm.c: In function 'set_freq':
+../Core/Src/pwm.c:6:14: error: 'reload' undeclared (first use in this function)
+    6 |  TIM2->ARR = reload;
+      |              ^~~~~~
+../Core/Src/pwm.c:6:14: note: each undeclared identifier is reported only once for each function it appears in
+../Core/Src/pwm.c:5:11: warning: unused variable 'scaled' [-Wunused-variable]
+    5 |  uint32_t scaled = SystemCoreClock/ (TIM2->PSC + 1) - 1;
+      |           ^~~~~~
+make: *** [Core/Src/subdir.mk:67: Core/Src/pwm.o] Error 1
+make: *** Waiting for unfinished jobs....
+../Core/Src/main.c: In function 'print_adc':
+../Core/Src/main.c:342:39: warning: format '%x' expects argument of type 'unsigned int', but argument 3 has type 'uint32_t' {aka 'long unsigned int'} [-Wformat=]
+  342 |  int l = sprintf(buffer, "SHW,0018,%04x", AD_RES);
+      |                                    ~~~^   ~~~~~~
+      |                                       |   |
+      |                                       |   uint32_t {aka long unsigned int}
+      |                                       unsigned int
+      |                                    %04lx
+../Core/Src/main.c:333:10: warning: variable 'value' set but not used [-Wunused-but-set-variable]
+  333 |  uint8_t value = 0;
+      |          ^~~~~
+"make -j12 all" terminated with exit code 2. Build might be incomplete.
+21:00:50 **** Incremental Build of configuration Debug for project RevEx ****
+make -j12 all 
+arm-none-eabi-gcc "../Core/Src/pwm.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32L081xx -c -I../Core/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/pwm.d" -MT"Core/Src/pwm.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/pwm.o"
+arm-none-eabi-gcc -o "RevEx.elf" @"objects.list"   -mcpu=cortex-m0plus -T"C:\Users\isaac\RevEx-Workspace\Embedded-Software\RevEx\STM32L081KZTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="RevEx.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: RevEx.elf
+ 
+arm-none-eabi-size   RevEx.elf 
+arm-none-eabi-objdump -h -S  RevEx.elf  > "RevEx.list"
+arm-none-eabi-objcopy  -O binary  RevEx.elf  "RevEx.bin"
+   text	   data	    bss	    dec	    hex	filename
+  31396	    312	   2344	  34052	   8504	RevEx.elf
+Finished building: default.size.stdout
+ 
+Finished building: RevEx.bin
+ 
+Finished building: RevEx.list
  

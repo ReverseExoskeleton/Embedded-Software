@@ -50,6 +50,13 @@ typedef struct
 	float z;
 } axises;
 
+typedef struct
+{
+	uint16_t x;
+	uint16_t y;
+	uint16_t z;
+} raw_axises;
+
 typedef enum
 {
 	power_down_mode = 0,
@@ -64,9 +71,11 @@ typedef enum
 /* Main Functions */
 
 // 16 bits ADC value. raw data.
-void icm20948_gyro_read_raw(uint8_t *** data);
-void icm20948_accel_read_raw(uint8_t *** data);
-bool ak09916_mag_read_raw(uint8_t *** data);
+uint8_t* read_multiple_icm20948_reg(userbank ub, uint8_t reg, uint8_t len);
+uint8_t* read_multiple_ak09916_reg(uint8_t reg, uint8_t len);
+void icm20948_gyro_read_raw(raw_axises * data);
+void icm20948_accel_read_raw(raw_axises * data);
+bool ak09916_mag_read_raw(raw_axises * data);
 
 // Convert 16 bits ADC value to their unit.
 void icm20948_gyro_read(axises* data);
