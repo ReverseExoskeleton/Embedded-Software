@@ -54,9 +54,9 @@ bool ak09916_mag_read_raw(raw_axises * data)
 	hofl = read_single_ak09916_reg(MAG_ST2) & 0x08;
 	if(hofl)	return false;
 
-	data->x = (int16_t)(temp[0] << 8 | temp[1]);
-	data->y = (int16_t)(temp[2] << 8 | temp[3]);
-	data->z = (int16_t)(temp[4] << 8 | temp[5]);
+	data->x = (int16_t)(temp[1] << 8 | temp[0]);
+	data->y = (int16_t)(temp[3] << 8 | temp[2]);
+	data->z = (int16_t)(temp[5] << 8 | temp[4]);
 
 	return true;
 }
