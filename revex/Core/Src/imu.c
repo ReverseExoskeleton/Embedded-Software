@@ -40,8 +40,8 @@ void icm20948_init()
 	icm20948_gyro_calibration();
 	icm20948_accel_calibration();
 
-	icm20948_gyro_full_scale_select(_2000dps);
-	icm20948_accel_full_scale_select(_16g);
+	icm20948_gyro_full_scale_select(_250dps);
+	icm20948_accel_full_scale_select(_2g);
 }
 
 void ak09916_init()
@@ -63,14 +63,15 @@ void IMU_Init()
 	ak09916_init();
 }
 
-/*void print_imu_raw()
+/*
+void print_imu_raw()
 {
 	char buffer1[50] = {0};
 	char buffer2[50] = {0};
 	char buffer3[50] = {0};
-	int l = sprintf(buffer1, "%u%u %u%u %u%u ", gyro_buffer[0], gyro_buffer[1], gyro_buffer[2], gyro_buffer[3], gyro_buffer[4], gyro_buffer[5]);
-	int m = sprintf(buffer2, "%u%u %u%u %u%u ", accel_buffer[0], accel_buffer[1], accel_buffer[2], accel_buffer[3], accel_buffer[4], accel_buffer[5]);
-	int n = sprintf(buffer3, "%u%u %u%u %u%u\r\n", mag_buffer[0], mag_buffer[1], mag_buffer[2], mag_buffer[3], mag_buffer[4], mag_buffer[5]);
+	int l = sprintf(buffer1, "%d %d %d", gyro.x, gyro.y, gyro.z);
+	int m = sprintf(buffer2, "%d %d %d", accel.x, accel.y, accel.z);
+	int n = sprintf(buffer3, "%d %d %d\r\n",  mag.x, mag.y, mag.z);
 	HAL_UART_Transmit(&huart1, (uint8_t*)buffer1, l, 100);
 	HAL_UART_Transmit(&huart1, (uint8_t*)buffer2, m, 100);
 	HAL_UART_Transmit(&huart1, (uint8_t*)buffer3, n, 100);

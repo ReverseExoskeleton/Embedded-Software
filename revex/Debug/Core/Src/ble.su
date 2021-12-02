@@ -1,7 +1,0 @@
-ble.c:32:6:HAL_UART_TxCpltCallback	16	static
-ble.c:37:6:HAL_UART_RxCpltCallback	24	static
-ble.c:67:6:BLE_Init	16	static
-ble.c:101:6:BLE_Init_IT	16	static
-ble.c:190:6:BLE_OTA	16	static
-ble.c:210:6:BLE_transmit	224	static
-ble.c:226:6:BLE_recieve	8	static

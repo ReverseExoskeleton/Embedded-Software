@@ -313,6 +313,9 @@ void icm20948_accel_calibration()
 	accel_bias[1] /= 100;
 	accel_bias[2] /= 100;
 
+	// Subtract 1 true G from bias
+	accel_bias[2] -= 0xffff >> 2;
+
 	uint8_t mask_bit[3] = {0, 0, 0};
 
 	temp2 = read_multiple_icm20948_reg(ub_1, B1_XA_OFFS_H, 2);

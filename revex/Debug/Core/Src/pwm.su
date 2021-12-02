@@ -1,2 +1,0 @@
-pwm.c:3:6:set_freq	24	static
-pwm.c:9:6:set_duty	24	static
