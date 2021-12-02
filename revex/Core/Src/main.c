@@ -26,10 +26,12 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include "eeprom.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "ble.h"
+#include "imu.h"
 #include "pwm.h"
 #include "icm20948.h"
 #include <stdio.h>
