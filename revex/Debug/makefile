@@ -61,8 +61,8 @@ all: main-build
 main-build: RevEx.elf secondary-outputs
 
 # Tool invocations
-RevEx.elf: $(OBJS) $(USER_OBJS) C:\Users\isaac\RevEx-Workspace\Embedded-Software\RevEx\STM32L081KZTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "RevEx.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"C:\Users\isaac\RevEx-Workspace\Embedded-Software\RevEx\STM32L081KZTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="RevEx.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+RevEx.elf: $(OBJS) $(USER_OBJS) C:\Users\rumple0\Documents\Embedded-Software\revex\STM32L081KZTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "RevEx.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"C:\Users\rumple0\Documents\Embedded-Software\revex\STM32L081KZTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="RevEx.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
