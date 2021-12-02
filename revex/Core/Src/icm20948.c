@@ -5,7 +5,7 @@
 static float gyro_scale_factor;
 static float accel_scale_factor;
 char tp [50] = "world1\r\n";
-
+char buff[50] = {0};
 
 static void     cs_high();
 static void     cs_low();
@@ -24,17 +24,21 @@ static void     write_single_ak09916_reg(uint8_t reg, uint8_t val);
 void icm20948_gyro_read_raw(raw_axises * data)
 {
 	uint8_t * temp = read_multiple_icm20948_reg(ub_0, B0_GYRO_XOUT_H, 6);
-	data->x = (uint16_t)(temp[0] << 8 | temp[1]);
-	data->y = (uint16_t)(temp[2] << 8 | temp[3]);
-	data->z = (uint16_t)(temp[4] << 8 | temp[5]);
+	data->x = (int16_t)(temp[0] << 8 | temp[1]);
+	data->y = (int16_t)(temp[2] << 8 | temp[3]);
+	data->z = (int16_t)(temp[4] << 8 | temp[5]);
+	int l = sprintf(buff, "gyro: %02x%02x%02x%02x%02x%02x\r\n", ((data->x & 0xff00)>>8), (data->x & 0xff), ((data->y & 0xff00)>>8), (data->y & 0xff), ((data->z & 0xff00)>>8), (data->z & 0xff));
+	HAL_UART_Transmit(&huart1, (uint8_t*)buff, l, 100);
 }
 
 void icm20948_accel_read_raw(raw_axises * data)
 {
 	uint8_t * temp = read_multiple_icm20948_reg(ub_0, B0_ACCEL_XOUT_H, 6);
-	data->x = (uint16_t)(temp[0] << 8 | temp[1]);
-	data->y = (uint16_t)(temp[2] << 8 | temp[3]);
-	data->z = (uint16_t)(temp[4] << 8 | temp[5]);
+	data->x = (int16_t)(temp[0] << 8 | temp[1]);
+	data->y = (int16_t)(temp[2] << 8 | temp[3]);
+	data->z = (int16_t)(temp[4] << 8 | temp[5]);
+	int l = sprintf(buff, "accel: %02x%02x%02x%02x%02x%02x\r\n", ((data->x & 0xff00)>>8), (data->x & 0xff), ((data->y & 0xff00)>>8), (data->y & 0xff), ((data->z & 0xff00)>>8), (data->z & 0xff));
+	HAL_UART_Transmit(&huart1, (uint8_t*)buff, l, 100);
 }
 
 bool ak09916_mag_read_raw(raw_axises * data)
@@ -49,9 +53,9 @@ bool ak09916_mag_read_raw(raw_axises * data)
 	hofl = read_single_ak09916_reg(MAG_ST2) & 0x08;
 	if(hofl)	return false;
 
-	data->x = (uint16_t)(temp[0] << 8 | temp[1]);
-	data->y = (uint16_t)(temp[2] << 8 | temp[3]);
-	data->z = (uint16_t)(temp[4] << 8 | temp[5]);
+	data->x = (int16_t)(temp[0] << 8 | temp[1]);
+	data->y = (int16_t)(temp[2] << 8 | temp[3]);
+	data->z = (int16_t)(temp[4] << 8 | temp[5]);
 
 	return true;
 }

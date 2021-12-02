@@ -19,7 +19,6 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include "imu.h"
 #include "main.h"
 #include "stm32l0xx_it.h"
 /* Private includes ----------------------------------------------------------*/

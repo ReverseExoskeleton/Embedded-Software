@@ -7,7 +7,12 @@
 
 uint8_t usart_flag = 0;
 uint8_t waiting = 0;
-uint8_t rx_buffer[10] = {0};
+uint8_t commandBuffer[30] = {0};
+uint8_t rxBuffer[2] = {0};
+uint8_t init_seq = 0;
+uint8_t command_ind = 0;
+uint8_t command_done = 0;
+
 
 char reset[6] = "SF,2\r\n";
 char config1[13] = "SR,32200000\r\n";
@@ -26,25 +31,36 @@ char ret[2] = "\n\r";
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef * huart)
 {
-	HAL_UART_Receive_IT(&huart1, rx_buffer, 3);
+	HAL_UART_Receive_IT(&huart1, rxBuffer, 3);
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef * huart)
 {
-	waiting = 0;
-	if(rx_buffer == "AOK")
-	{
-		usart_flag = 1;
+	if (init_seq) {
+		if (command_ind == 0) for (uint8_t i = 0; i < 30; i++) commandBuffer[i] = 0;
+
+		if (command_done == 0 && rxBuffer[0] != '\n') {
+			commandBuffer[command_ind++] = rxBuffer[0];
+			//HAL_UART_Receive_IT(&huart1, rxBuffer, 1);
+		} else if (rxBuffer[0] == '\n') {
+			commandBuffer[command_ind++] = rxBuffer[0];
+			command_ind = 0;
+			command_done = 1;
+		}
+	} else {
+		if (command_ind == 0) for (uint8_t i = 0; i < 30; i++) commandBuffer[i] = 0;
+
+		if (command_done == 0 && rxBuffer[0] != '\n') {
+			commandBuffer[command_ind++] = rxBuffer[0];
+			//HAL_UART_Receive_IT(&huart1, rxBuffer, 1);
+		} else if (rxBuffer[0] == '\n') {
+			commandBuffer[command_ind++] = rxBuffer[0];
+			command_ind = 0;
+			command_done = 1;
+			process_command();
+		}
 	}
-	else if(rx_buffer == "Reb")
-	{
-		usart_flag = 1;
-	}
-	else
-	{
-		usart_flag = 0;
-	}
-	HAL_UART_Receive_IT(&huart1, rx_buffer, 3);
+	HAL_UART_Receive_IT(&huart1, rxBuffer, 1);
 }
 
 
@@ -92,27 +108,27 @@ void BLE_Init_IT()
 	HAL_Delay(2000);
 	toggle_on(GPIOA, 6);
 	HAL_Delay(2000);
-	HAL_UART_Receive(&huart1, rx_buffer, 3, 10);
-	HAL_UART_Transmit(&huart1, rx_buffer, 3, 10);
+	HAL_UART_Receive(&huart1, rxBuffer, 3, 10);
+	HAL_UART_Transmit(&huart1, rxBuffer, 3, 10);
 	while(!usart_flag)
 	{
 		waiting = 1;
 		HAL_UART_Transmit(&huart1, (uint8_t*)reboot, 5, 10);
 		HAL_Delay(500);
-		HAL_UART_Receive(&huart1, rx_buffer, 3, 10);
-		HAL_UART_Transmit(&huart1, rx_buffer, 3, 10);
-		if(!strcmp(rx_buffer,"Reboot\r\n"))
+		HAL_UART_Receive(&huart1, rxBuffer, 3, 10);
+		HAL_UART_Transmit(&huart1, rxBuffer, 3, 10);
+		if(!strcmp(rxBuffer,"Reboot\r\n"))
 		{
 			usart_flag = 1;
 		}
 	}
-	HAL_UART_Receive(&huart1, rx_buffer, 10, 10);
+	HAL_UART_Receive(&huart1, rxBuffer, 10, 10);
 	usart_flag = 0;
 	while(!usart_flag)
 	{
 		HAL_UART_Transmit(&huart1, (uint8_t*)reset, 6, 10);
-		HAL_UART_Receive(&huart1, rx_buffer, 10, 10);
-		if(!strcmp(rx_buffer,"AOK\r\n"))
+		HAL_UART_Receive(&huart1, rxBuffer, 10, 10);
+		if(!strcmp(rxBuffer,"AOK\r\n"))
 		{
 			usart_flag = 1;
 		}
@@ -205,4 +221,9 @@ void BLE_transmit(uint8_t * data1, uint8_t * data2, uint8_t * data3)
 	//HAL_UART_Transmit(&huart1, (uint8_t*)buffer3, n, 100);
 	//HAL_UART_Transmit(&huart1, (uint8_t*)ret, 2, 10);
 
+}
+
+void BLE_recieve()
+{
+	HAL_UART_Receive_IT(&huart1, rxBuffer, 1);
 }

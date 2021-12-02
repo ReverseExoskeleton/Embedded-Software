@@ -45,6 +45,8 @@ uint32_t val = 0;
 int gate = 0;
 char temp [50] = "hello\r\n";
 char sleep [16] = "Going to Sleep\r\n";
+char d1 [6] = "dip1\r\n";
+char d2 [6] = "dip2\r\n";
 uint16_t adc_buf[4096];
 /* USER CODE END PTD */
 
@@ -376,6 +378,19 @@ void debug_imu()
 	}
 }
 
+uint8_t go_goDipSwitch()
+{
+	setup_gpio(GPIOA, 2, input, 0, 0);
+	setup_gpio(GPIOA, 3, input, 0, 0);
+	HAL_Delay(50);
+	uint8_t dip1 = get_gpio(GPIOA, 2);
+	uint8_t dip2 = get_gpio(GPIOA, 3);
+	if(dip1) HAL_UART_Transmit(&huart1, (uint8_t*)d1, 6, 100);
+	if(dip2) HAL_UART_Transmit(&huart1, (uint8_t*)d2, 6, 100);
+	uint8_t ret_val = (dip2 << 1) | dip1;
+	return ret_val;
+}
+
 void reset_reg()
 {
 	RCC->AHBRSTR |= RCC_AHBRSTR_DMA1RST;
@@ -407,7 +422,7 @@ void reset_reg()
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	uint8_t dips;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -437,14 +452,22 @@ int main(void)
   MX_TIM6_Init();
   MX_ADC_Init();
   /* USER CODE BEGIN 2 */
+  dips = go_goDipSwitch();
   HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
   setup_gpio(GPIOA, 1, output, 0, 0);
   toggle_off(GPIOA, 1);
-  IMU_Init();
-  BLE_Init();
-  //HAL_UART_Transmit(&huart1, (uint8_t*)sleep, 16, 100);
-  //reset_reg();
-  //HAL_PWR_EnterSTANDBYMode();
+  if(dips == 3)
+  {
+	  IMU_Init();
+	  BLE_Init();
+  }
+  if(dips == 4)
+  {
+	  HAL_UART_Transmit(&huart1, (uint8_t*)sleep, 16, 100);
+	  reset_reg();
+	  HAL_PWR_EnterSTANDBYMode();
+
+  }
   //ADC_config();
   HAL_Delay(3000);
   setup_tim2();

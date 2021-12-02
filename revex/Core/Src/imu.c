@@ -84,6 +84,9 @@ void print_imu_raw()
 	int l = sprintf(buffer1, "%02x%02x%02x%02x%02x%02x", ((gyro.x & 0xff00)>>8), (gyro.x & 0xff), ((gyro.y & 0xff00)>>8), (gyro.y & 0xff), ((gyro.z & 0xff00)>>8), (gyro.z & 0xff));
 	int m = sprintf(buffer2, "%02x%02x%02x%02x%02x%02x", ((accel.x & 0xff00)>>8), (accel.x & 0xff), ((accel.y & 0xff00)>>8), (accel.y & 0xff), ((accel.z & 0xff00)>>8), (accel.z & 0xff));
 	int n = sprintf(buffer3, "%02x%02x%02x%02x%02x%02x\r\n", ((mag.x & 0xff00)>>8), (mag.x & 0xff), ((mag.y & 0xff00)>>8), (mag.y & 0xff), ((mag.z & 0xff00)>>8), (mag.z & 0xff));
+	//int l = sprintf(buffer1, "%04x%04x%04x", gyro.x, gyro.y, gyro.z);
+	//int m = sprintf(buffer2, "%04x%04x%04x", accel.x, accel.y, accel.z);
+	//int n = sprintf(buffer3, "%04x%04x%04x\r\n", mag.x, mag.y, mag.z);
 	HAL_UART_Transmit(&huart1, (uint8_t*)buffer1, l, 100);
 	HAL_UART_Transmit(&huart1, (uint8_t*)buffer2, m, 100);
 	HAL_UART_Transmit(&huart1, (uint8_t*)buffer3, n, 100);
