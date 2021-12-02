@@ -353,7 +353,13 @@ void sample()
 	print_imu_raw();
 	if(AD_RES > 2000)
 	{
-		asm("NOP");
+		set_freq(10);
+		set_duty(20);
+	}
+	else
+	{
+		set_freq(20);
+		set_duty(80);
 	}
 	/*ADC1->CR |= ADC_CR_ADSTP;
 	ADC1->ISR |= 0xf;
@@ -457,12 +463,13 @@ int main(void)
   HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
   setup_gpio(GPIOA, 1, output, 0, 0);
   toggle_off(GPIOA, 1);
-  if(dips == 3)
+  setup_tim2();
+  if(dips == 1)
   {
 	  IMU_Init();
 	  BLE_Init();
   }
-  if(dips == 4)
+  if(dips == 2)
   {
 	  HAL_UART_Transmit(&huart1, (uint8_t*)sleep, 16, 100);
 	  reset_reg();
@@ -471,7 +478,6 @@ int main(void)
   }
   //ADC_config();
   HAL_Delay(3000);
-  setup_tim2();
   //setup_tim6();
   HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */

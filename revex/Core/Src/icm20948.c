@@ -27,8 +27,6 @@ void icm20948_gyro_read_raw(raw_axises * data)
 	data->x = (int16_t)(temp[0] << 8 | temp[1]);
 	data->y = (int16_t)(temp[2] << 8 | temp[3]);
 	data->z = (int16_t)(temp[4] << 8 | temp[5]);
-	int l = sprintf(buff, "gyro: %02x%02x%02x%02x%02x%02x\r\n", ((data->x & 0xff00)>>8), (data->x & 0xff), ((data->y & 0xff00)>>8), (data->y & 0xff), ((data->z & 0xff00)>>8), (data->z & 0xff));
-	HAL_UART_Transmit(&huart1, (uint8_t*)buff, l, 100);
 }
 
 void icm20948_accel_read_raw(raw_axises * data)
@@ -37,8 +35,6 @@ void icm20948_accel_read_raw(raw_axises * data)
 	data->x = (int16_t)(temp[0] << 8 | temp[1]);
 	data->y = (int16_t)(temp[2] << 8 | temp[3]);
 	data->z = (int16_t)(temp[4] << 8 | temp[5]);
-	int l = sprintf(buff, "accel: %02x%02x%02x%02x%02x%02x\r\n", ((data->x & 0xff00)>>8), (data->x & 0xff), ((data->y & 0xff00)>>8), (data->y & 0xff), ((data->z & 0xff00)>>8), (data->z & 0xff));
-	HAL_UART_Transmit(&huart1, (uint8_t*)buff, l, 100);
 }
 
 bool ak09916_mag_read_raw(raw_axises * data)

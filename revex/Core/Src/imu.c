@@ -105,7 +105,7 @@ void IMU_read_all_raw()
 		icm20948_gyro_read_raw(&gyro);
 		icm20948_accel_read_raw(&accel);
 	}
-
+	attempt = 0;
 }
 
 void print_imu()
