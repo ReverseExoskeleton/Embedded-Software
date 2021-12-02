@@ -1,6 +1,7 @@
 .metadata/
 revex/Debug/
-revex/.settings/
+revex/.settings/*
 revex/.mxproject/
 revex/.cproject/
+
 
