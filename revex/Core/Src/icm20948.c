@@ -1,5 +1,6 @@
 #include "icm20948.h"
 #include "usart.h"
+#include "eeprom.h"
 #include <stdio.h>
 
 static float gyro_scale_factor;
@@ -262,35 +263,42 @@ void ak09916_operation_mode_setting(operation_mode mode)
 	HAL_Delay(100);
 }
 
-void icm20948_gyro_calibration()
+void icm20948_gyro_calibration(uint8_t loadBias)
 {
 	axises temp;
 	int32_t gyro_bias[3] = {0};
 	uint8_t gyro_offset[6] = {0};
 
-	for(int i = 0; i < 100; i++)
-	{
-		icm20948_gyro_read(&temp);
-		gyro_bias[0] += temp.x;
-		gyro_bias[1] += temp.y;
-		gyro_bias[2] += temp.z;
+	if (!loadBias) {
+		for(int i = 0; i < 100; i++)
+		{
+			icm20948_gyro_read(&temp);
+			gyro_bias[0] += temp.x;
+			gyro_bias[1] += temp.y;
+			gyro_bias[2] += temp.z;
+		}
+
+		gyro_bias[0] /= 100;
+		gyro_bias[1] /= 100;
+		gyro_bias[2] /= 100;
+
+		gyro_offset[0] = (-gyro_bias[0] / 4  >> 8) & 0xFF;
+		gyro_offset[1] = (-gyro_bias[0] / 4)       & 0xFF;
+		gyro_offset[2] = (-gyro_bias[1] / 4  >> 8) & 0xFF;
+		gyro_offset[3] = (-gyro_bias[1] / 4)       & 0xFF;
+		gyro_offset[4] = (-gyro_bias[2] / 4  >> 8) & 0xFF;
+		gyro_offset[5] = (-gyro_bias[2] / 4)       & 0xFF;
+
+		EEPROM_writeToNVM(EEPROM_gyroCalib, gyro_offset, 6);	// Save offset data
 	}
-
-	gyro_bias[0] /= 100;
-	gyro_bias[1] /= 100;
-	gyro_bias[2] /= 100;
-
-	gyro_offset[0] = (-gyro_bias[0] / 4  >> 8) & 0xFF;
-	gyro_offset[1] = (-gyro_bias[0] / 4)       & 0xFF;
-	gyro_offset[2] = (-gyro_bias[1] / 4  >> 8) & 0xFF;
-	gyro_offset[3] = (-gyro_bias[1] / 4)       & 0xFF;
-	gyro_offset[4] = (-gyro_bias[2] / 4  >> 8) & 0xFF;
-	gyro_offset[5] = (-gyro_bias[2] / 4)       & 0xFF;
+	else {
+		EEPROM_readfromNVM(EEPROM_gyroCalib, gyro_offset, 6);	// Load offset data
+	}
 
 	write_multiple_icm20948_reg(ub_2, B2_XG_OFFS_USRH, gyro_offset, 6);
 }
 
-void icm20948_accel_calibration()
+void icm20948_accel_calibration(uint8_t loadBias)
 {
 	axises temp;
 	uint8_t* temp2;
@@ -301,50 +309,59 @@ void icm20948_accel_calibration()
 	int32_t accel_bias_reg[3] = {0};
 	uint8_t accel_offset[6] = {0};
 
-	for(int i = 0; i < 100; i++)
-	{
-		icm20948_accel_read(&temp);
-		accel_bias[0] += temp.x;
-		accel_bias[1] += temp.y;
-		accel_bias[2] -= temp.z;
+	if (!loadBias) {
+		for(int i = 0; i < 100; i++)
+		{
+			icm20948_accel_read(&temp);
+			accel_bias[0] += temp.x;
+			accel_bias[1] += temp.y;
+			accel_bias[2] -= temp.z;
+		}
+
+		accel_bias[0] /= 100;
+		accel_bias[1] /= 100;
+		accel_bias[2] /= 100;
+
+		// Subtract 1 true G from bias
+		accel_bias[2] -= 0xffff >> 2;
+
+		uint8_t mask_bit[3] = {0, 0, 0};
+
+		temp2 = read_multiple_icm20948_reg(ub_1, B1_XA_OFFS_H, 2);
+		accel_bias_reg[0] = (int32_t)(temp2[0] << 8 | temp2[1]);
+		mask_bit[0] = temp2[1] & 0x01;
+
+		temp3 = read_multiple_icm20948_reg(ub_1, B1_YA_OFFS_H, 2);
+		accel_bias_reg[1] = (int32_t)(temp3[0] << 8 | temp3[1]);
+		mask_bit[1] = temp3[1] & 0x01;
+
+		temp4 = read_multiple_icm20948_reg(ub_1, B1_ZA_OFFS_H, 2);
+		accel_bias_reg[2] = (int32_t)(temp4[0] << 8 | temp4[1]);
+		mask_bit[2] = temp4[1] & 0x01;
+
+		accel_bias_reg[0] -= (accel_bias[0] / 8);
+		accel_bias_reg[1] -= (accel_bias[1] / 8);
+		accel_bias_reg[2] -= (accel_bias[2] / 8);
+
+		accel_offset[0] = (accel_bias_reg[0] >> 8) & 0xFF;
+		accel_offset[1] = (accel_bias_reg[0])      & 0xFE;
+		accel_offset[1] = accel_offset[1] | mask_bit[0];
+
+		accel_offset[2] = (accel_bias_reg[1] >> 8) & 0xFF;
+		accel_offset[3] = (accel_bias_reg[1])      & 0xFE;
+		accel_offset[3] = accel_offset[3] | mask_bit[1];
+
+		accel_offset[4] = (accel_bias_reg[2] >> 8) & 0xFF;
+		accel_offset[5] = (accel_bias_reg[2])      & 0xFE;
+		accel_offset[5] = accel_offset[5] | mask_bit[2];
+
+		EEPROM_writeToNVM(EEPROM_acclCalib, accel_offset, 6);	// Save offset data
+	}
+	else {
+		EEPROM_readfromNVM(EEPROM_acclCalib, accel_offset, 6);	// Load offset data
 	}
 
-	accel_bias[0] /= 100;
-	accel_bias[1] /= 100;
-	accel_bias[2] /= 100;
 
-	// Subtract 1 true G from bias
-	accel_bias[2] -= 0xffff >> 2;
-
-	uint8_t mask_bit[3] = {0, 0, 0};
-
-	temp2 = read_multiple_icm20948_reg(ub_1, B1_XA_OFFS_H, 2);
-	accel_bias_reg[0] = (int32_t)(temp2[0] << 8 | temp2[1]);
-	mask_bit[0] = temp2[1] & 0x01;
-
-	temp3 = read_multiple_icm20948_reg(ub_1, B1_YA_OFFS_H, 2);
-	accel_bias_reg[1] = (int32_t)(temp3[0] << 8 | temp3[1]);
-	mask_bit[1] = temp3[1] & 0x01;
-
-	temp4 = read_multiple_icm20948_reg(ub_1, B1_ZA_OFFS_H, 2);
-	accel_bias_reg[2] = (int32_t)(temp4[0] << 8 | temp4[1]);
-	mask_bit[2] = temp4[1] & 0x01;
-
-	accel_bias_reg[0] -= (accel_bias[0] / 8);
-	accel_bias_reg[1] -= (accel_bias[1] / 8);
-	accel_bias_reg[2] -= (accel_bias[2] / 8);
-
-	accel_offset[0] = (accel_bias_reg[0] >> 8) & 0xFF;
-  	accel_offset[1] = (accel_bias_reg[0])      & 0xFE;
-	accel_offset[1] = accel_offset[1] | mask_bit[0];
-
-	accel_offset[2] = (accel_bias_reg[1] >> 8) & 0xFF;
-  	accel_offset[3] = (accel_bias_reg[1])      & 0xFE;
-	accel_offset[3] = accel_offset[3] | mask_bit[1];
-
-	accel_offset[4] = (accel_bias_reg[2] >> 8) & 0xFF;
-	accel_offset[5] = (accel_bias_reg[2])      & 0xFE;
-	accel_offset[5] = accel_offset[5] | mask_bit[2];
 
 	write_multiple_icm20948_reg(ub_1, B1_XA_OFFS_H, &accel_offset[0], 2);
 	write_multiple_icm20948_reg(ub_1, B1_YA_OFFS_H, &accel_offset[2], 2);
