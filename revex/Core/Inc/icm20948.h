@@ -113,8 +113,8 @@ void icm20948_accel_sample_rate_divider(uint16_t divider);
 void ak09916_operation_mode_setting(operation_mode mode);
 
 // Calibration before select full scale.
-void icm20948_gyro_calibration();
-void icm20948_accel_calibration();
+void icm20948_gyro_calibration(uint8_t loadBias);
+void icm20948_accel_calibration(uint8_t loadBias);
 
 void icm20948_gyro_full_scale_select(gyro_full_scale full_scale);
 void icm20948_accel_full_scale_select(accel_full_scale full_scale);

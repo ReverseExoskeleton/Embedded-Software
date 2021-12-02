@@ -5,7 +5,7 @@
 
 #define TIMEOUT 10
 
-void IMU_Init();
+void IMU_Init(uint8_t loadBias);
 
 void print_imu_raw();
 

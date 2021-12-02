@@ -17,9 +17,9 @@ int attempt = 0;
 char tmp [50] = "world\r\n";
 
 static void ak09916_init();
-static void icm20948_init();
+static void icm20948_init(uint8_t loadBias);
 
-void icm20948_init()
+void icm20948_init(uint8_t loadBias)
 {
 	while(!icm20948_who_am_i());
 
@@ -37,8 +37,10 @@ void icm20948_init()
 	icm20948_gyro_sample_rate_divider(0);
 	icm20948_accel_sample_rate_divider(0);
 
-	icm20948_gyro_calibration();
-	icm20948_accel_calibration();
+	if (!loadBias) { EEPROM_unlock(); } // We will be writing in the EEPROM
+
+	icm20948_gyro_calibration(loadBias);
+	icm20948_accel_calibration(loadBias);
 
 	icm20948_gyro_full_scale_select(_250dps);
 	icm20948_accel_full_scale_select(_2g);
@@ -56,10 +58,10 @@ void ak09916_init()
 	ak09916_operation_mode_setting(continuous_measurement_100hz);
 }
 
-void IMU_Init()
+void IMU_Init(uint8_t loadBias)
 {
 	MX_SPI1_Init();
-	icm20948_init();
+	icm20948_init(loadBias);
 	ak09916_init();
 }
 
