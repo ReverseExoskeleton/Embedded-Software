@@ -43,6 +43,7 @@ uint32_t AD_RES = 0;
 uint32_t Period = 0;
 uint32_t Duty_cycle = 1000;
 uint32_t val = 0;
+uint32_t sleep_cnt = 0;
 int gate = 0;
 char temp [50] = "hello\r\n";
 char sleep [16] = "Going to Sleep\r\n";
