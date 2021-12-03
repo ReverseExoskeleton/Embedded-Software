@@ -12,6 +12,7 @@ uint8_t usart_flag = 0;
 uint8_t waiting = 0;
 uint8_t commandBuffer[30] = {0};
 uint8_t rxBuffer[16] = {0};
+uint8_t txBuffer[64];
 uint8_t command_ind = 0;
 uint8_t command_done = 0;
 
@@ -29,7 +30,7 @@ char Service[37] = "PS,123456789012345678901234567890FF\r\n";
 char Characteristic1[43] = "PC,12345678901234567890123456789011,12,20\r\n";
 char Characteristic2[43] = "PC,12345678901234567890123456789022,14,02\r\n";
 char Characteristic3[43] = "PC,12345678901234567890123456789033,12,04\r\n";
-char cmd[9] = "SHW,0018,";
+char cmdData[9] = "SHW,0018,";
 char ret[2] = "\n\r";
 
 
@@ -162,8 +163,10 @@ void BLE_Init()
 	HAL_UART_Transmit(&huart1, (uint8_t*)Ad, 3, 10);
 }
 
-void BLE_Init_IT()
+bleState BLE_Init_IT()
 {
+	uint8_t retry = BLE_Info.currentState == BLE_ERR;
+
 	// Setup information
 	BLE_Info.currentState = BLE_FREE;
 	BLE_Info.awaitingState = BLE_FREE;
@@ -174,11 +177,16 @@ void BLE_Init_IT()
 
 	BLE_receive();
 
-	setup_gpio(GPIOA, 6, output, 0, 0);
-	setup_gpio(GPIOA, 8, output, 0, 0);
+	memcpy(txBuffer, cmdData, 9);
+
+	if (!retry) {
+		setup_gpio(GPIOA, 6, output, 0, 0);
+		setup_gpio(GPIOA, 8, output, 0, 0);
+	}
+
 	toggle_off(GPIOA, 6);
 	toggle_off(GPIOA, 8);
-	HAL_Delay(2000);
+	HAL_Delay(4000);
 	BLE_Info.currentState = BLE_FREE;
 //	HAL_UART_Receive_IT(&huart1, rxBuffer, 5);
 	toggle_on(GPIOA, 6);
@@ -190,7 +198,10 @@ void BLE_Init_IT()
 	HAL_UART_Transmit(&huart1, (uint8_t*)reboot, 5, 10);
 	BLE_awaitState(BLE_REBOOT);
 //	HAL_UART_Receive_IT(&huart1, rxBuffer, 3);
-	BLE_awaitState(BLE_CMD);
+	if (BLE_awaitState(BLE_CMD) == BLE_ERR) {
+		//toggle_off(GPIOA, 6);
+		//return BLE_ERR;
+	}
 
 	// Reset
 	BLE_Info.currentState = BLE_FREE;
@@ -287,19 +298,14 @@ void BLE_OTA()
 	HAL_Delay(1500);
 }
 
-void BLE_transmit(uint16_t data, uint8_t new, uint8_t end)
+void BLE_transmit(uint8_t* data, uint16_t length)
 {
-	char buffer[50];
-	int l = sprintf(buffer, "%04x", data);
-	if(new)
-	{
-		HAL_UART_Transmit(&huart1, (uint8_t*)cmd, 9, 10);
-	}
-	HAL_UART_Transmit(&huart1, (uint8_t*)buffer, l, 100);
-	if(end)
-	{
-		HAL_UART_Transmit(&huart1, (uint8_t*)ret, 2, 10);
-	}
+	memcpy(&(txBuffer[9]), data, length);
+
+	memcpy(&(txBuffer[49]), ret, 2);
+
+	HAL_UART_Transmit(&huart1, txBuffer, length + 11, 10);
+//	HAL_UART_Transmit_DMA(&huart1, data, length);
 }
 
 void BLE_receive()
@@ -309,13 +315,17 @@ void BLE_receive()
 
 bleState BLE_awaitState(bleState state) {
 	/* Currently a blocking call */
+	uint16_t err_ct = 0;
+
 	if (state == BLE_ERR) {
 		return BLE_ERR;
 	}
 
 	BLE_Info.awaitingState = state;
 
-	while (BLE_Info.currentState != BLE_Info.awaitingState || BLE_Info.currentState == BLE_ERR) { }
+	while ((BLE_Info.currentState != BLE_Info.awaitingState || BLE_Info.currentState == BLE_ERR) && err_ct <= 2000) { err_ct++; HAL_Delay(1); }
+
+	if (err_ct >= 2000) { BLE_Info.currentState = BLE_ERR; }
 
 	return BLE_Info.currentState;
 }

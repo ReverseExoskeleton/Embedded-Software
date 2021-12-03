@@ -49,7 +49,7 @@ char temp [50] = "hello\r\n";
 char sleep [16] = "Going to Sleep\r\n";
 char d1 [6] = "dip1\r\n";
 char d2 [6] = "dip2\r\n";
-uint16_t adc_buf[4096];
+uint8_t outputData[128];
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -333,11 +333,9 @@ void ADC_config()
 
 uint16_t print_adc(void)
 {
-	char buffer[20];
-	uint16_t value = AD_RES & 0xffe;
-	//int l = sprintf(buffer, "SHW,0018,%04x", value);
-	//HAL_UART_Transmit(&huart1, (uint8_t*)buffer, l, 100);
-	BLE_transmit(value, 1, 0);
+	uint16_t value = AD_RES;// & 0xffe;
+	sprintf(outputData, "%04x", value);
+
 	return value;
 }
 
@@ -354,7 +352,9 @@ void sample()
 	{
 		sleep_cnt++;
 	}
-	print_imu_raw();
+	print_imu_raw(outputData);
+
+	BLE_transmit(outputData, 40);
 	/*ADC1->CR |= ADC_CR_ADSTP;
 	ADC1->ISR |= 0xf;
 	while(ADC1->CR == ADC_CR_ADSTART){}
@@ -386,8 +386,8 @@ uint8_t go_goDipSwitch()
 	HAL_Delay(50);
 	uint8_t dip1 = get_gpio(GPIOA, 2);
 	uint8_t dip2 = get_gpio(GPIOA, 3);
-	if(dip1) HAL_UART_Transmit(&huart1, (uint8_t*)d1, 6, 100);
-	if(dip2) HAL_UART_Transmit(&huart1, (uint8_t*)d2, 6, 100);
+//	if(dip1) HAL_UART_Transmit(&huart1, (uint8_t*)d1, 6, 100);
+//	if(dip2) HAL_UART_Transmit(&huart1, (uint8_t*)d2, 6, 100);
 	uint8_t ret_val = (dip2 << 1) | dip1;
 	return ret_val;
 }
@@ -422,7 +422,7 @@ void darkness()
 
 void my_old_friend()
 {
-	if(sleep_cnt > 8)
+	if(sleep_cnt > 899)
 	{
 		sleep_cnt = 0;
 		//darkness();
@@ -513,7 +513,12 @@ int main(void)
   {
 	  //passes dips to determine if calibration is loaded or created
 	  IMU_Init(!dips);
-	  BLE_Init_IT();
+
+	  bleState bt_state = BLE_ERR;
+
+	  while (bt_state == BLE_ERR) {
+		  bt_state = BLE_Init_IT();
+	  }
   }
   if(dips == 2)
   {

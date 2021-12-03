@@ -7,7 +7,7 @@
 
 void IMU_Init(uint8_t loadBias);
 
-void print_imu_raw();
+void print_imu_raw(uint8_t* outBuffer);
 
 void IMU_read_all_raw();
 

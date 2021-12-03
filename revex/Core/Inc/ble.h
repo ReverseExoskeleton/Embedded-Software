@@ -23,9 +23,11 @@ typedef struct {
 
 void BLE_Init();
 
+bleState BLE_Init_IT();
+
 void BLE_OTA();
 
-void BLE_transmit(uint16_t data, uint8_t new, uint8_t end);
+void BLE_transmit(uint8_t* data, uint16_t length);
 
 void BLE_receive();
 

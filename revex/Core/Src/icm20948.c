@@ -126,6 +126,11 @@ bool ak09916_mag_read_uT(axises* data)
 	return true;
 }
 
+void setup_wom(uint8_t thresh)
+{
+	write_single_icm20948_reg(ub_2, B2_ACCEL_WOM_THR, thresh);
+	write_single_icm20948_reg(ub_0, B0_INT_ENABLE, 0x08);
+}
 
 bool icm20948_who_am_i()
 {
