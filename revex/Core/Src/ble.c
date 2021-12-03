@@ -15,7 +15,7 @@ uint8_t command_done = 0;
 
 
 char reset[6] = "SF,2\r\n";
-char config1[13] = "SR,32200000\r\n";
+char config1[13] = "SR,12200000\r\n";
 char config2[13] = "SS,80000001\r\n";
 char ota[13] = "SR,30008000\r\n";
 char name[10] = "SN,RevEx\r\n";
@@ -118,6 +118,7 @@ void BLE_Init()
 	HAL_Delay(1000);
 	HAL_UART_Transmit(&huart1, (uint8_t*)reboot, 5, 10);
 	HAL_Delay(1500);
+	HAL_UART_Transmit(&huart1, (uint8_t*)Ad, 3, 10);
 }
 
 void BLE_Init_IT()

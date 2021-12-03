@@ -61,10 +61,16 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 void sample();
-void print_adc();
+uint16_t print_adc();
 void setup_gpio(GPIO_TypeDef  *GPIOx, int num, enum mode m, int pupd, int speed);
+int get_gpio(GPIO_TypeDef  *GPIOx, int num);
+void my_old_friend();
+void darkness();
 void toggle_on(GPIO_TypeDef  *GPIOx, int num);
 void toggle_off(GPIO_TypeDef  *GPIOx, int num);
+void set_sleepcnt();
+void reset_sleepcnt();
+int get_sleepcnt();
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

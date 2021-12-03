@@ -26,7 +26,6 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "eeprom.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -44,6 +43,7 @@ uint32_t Period = 0;
 uint32_t Duty_cycle = 1000;
 uint32_t val = 0;
 uint32_t sleep_cnt = 0;
+uint16_t old = 0;
 int gate = 0;
 char temp [50] = "hello\r\n";
 char sleep [16] = "Going to Sleep\r\n";
@@ -331,37 +331,29 @@ void ADC_config()
 	}
 }
 
-void print_adc(void)
+uint16_t print_adc(void)
 {
 	char buffer[20];
-	uint8_t value = 0;
-	if(AD_RES < 420 || AD_RES > 1598)
-	{
-		value = 255;
-	}
-	else
-	{
-		value = AD_RES * 10201/100000 - 13;
-	}
-	int l = sprintf(buffer, "SHW,0018,%04x", AD_RES);
+	uint16_t value = AD_RES & 0xffe;
+	int l = sprintf(buffer, "SHW,0018,%04x", value);
 	HAL_UART_Transmit(&huart1, (uint8_t*)buffer, l, 100);
+	return value;
 }
 
 void sample()
 {
 	HAL_ADC_Start_DMA(&hadc, &AD_RES, 1);
-	print_adc();
-	print_imu_raw();
-	if(AD_RES > 2000)
+	uint16_t value = print_adc();
+	if(value > old + 6 || value < old - 6)
 	{
-		set_freq(10);
-		set_duty(20);
+		old = value;
+		sleep_cnt = 0;
 	}
 	else
 	{
-		set_freq(20);
-		set_duty(80);
+		sleep_cnt++;
 	}
+	print_imu_raw();
 	/*ADC1->CR |= ADC_CR_ADSTP;
 	ADC1->ISR |= 0xf;
 	while(ADC1->CR == ADC_CR_ADSTART){}
@@ -409,11 +401,46 @@ void reset_reg()
 	RCC->IOPRSTR |= RCC_IOPRSTR_GPIOBRST;
 	RCC->IOPRSTR &= ~RCC_IOPRSTR_GPIOBRST;
 	RCC->IOPRSTR &= ~RCC_IOPRSTR_GPIOARST;
+	/*setup_gpio(GPIOA, 6, output, 0, 0);
+	setup_gpio(GPIOA, 8, output, 0, 0);
+	toggle_off(GPIOA, 8);
+	toggle_on(GPIOA, 6);*/
 	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM6RST;
 	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM2RST;
 	RCC->AHBRSTR &= ~RCC_AHBRSTR_DMA1RST;
 	RCC->APB2RSTR &= ~RCC_APB2RSTR_ADCRST;
 	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+}
+
+void darkness()
+{
+	//HAL_UART_Transmit(&huart1, (uint8_t*)sleep, 16, 100);
+	reset_reg();
+	HAL_PWR_EnterSTANDBYMode();
+}
+
+void my_old_friend()
+{
+	if(sleep_cnt > 8)
+	{
+		sleep_cnt = 0;
+		darkness();
+	}
+}
+
+void set_sleepcnt()
+{
+	sleep_cnt++;
+}
+
+void reset_sleepcnt()
+{
+	sleep_cnt = 0;
+}
+
+int get_sleepcnt()
+{
+	return sleep_cnt;
 }
 
 /* USER CODE END PFP */
@@ -468,7 +495,7 @@ int main(void)
   if(dips == 0 || dips == 1) // NORMAL OPERATION
   {
 	  // passes dips to determine if calibration is loaded or created
-	  IMU_Init(!dips);
+	  //IMU_Init(!dips);
 	  BLE_Init();
   }
   if(dips == 2)

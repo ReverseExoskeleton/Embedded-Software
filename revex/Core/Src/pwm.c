@@ -1,13 +1,22 @@
 #include "tim.h"
 
-void set_freq(int freq)
+uint8_t get_freq(uint8_t data)
 {
-	uint32_t value = SystemCoreClock/ (TIM2->PSC + 1) / freq - 1;
-	TIM2->ARR = value;
+	return (data & 0xe);
 }
 
-void set_duty(int duty)
+uint8_t get_duty(uint8_t data)
 {
-	uint32_t value = TIM2->ARR * duty / 100;
-	TIM2->CCR2 = value;
+	return (data >> 3);
+}
+
+void set_haptic(uint8_t data)
+{
+	uint8_t freq_raw = get_freq(data);
+	uint8_t duty_raw = get_duty(data);
+
+	uint32_t arr = SystemCoreClock / (TIM2->PSC + 1) / freq_raw * 15 / 7 + 4;
+	uint32_t ccr = arr * duty_raw / 32;
+	TIM2->ARR = arr;
+	TIM2->CCR2 = ccr;
 }
