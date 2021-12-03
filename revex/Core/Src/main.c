@@ -26,7 +26,6 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "eeprom.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -352,16 +351,16 @@ void sample()
 	HAL_ADC_Start_DMA(&hadc, &AD_RES, 1);
 	print_adc();
 	print_imu_raw();
-	if(AD_RES > 2000)
-	{
-		set_freq(10);
-		set_duty(20);
-	}
-	else
-	{
-		set_freq(20);
-		set_duty(80);
-	}
+//	if(AD_RES > 2000)
+//	{
+//		set_freq(10);
+//		set_duty(20);
+//	}
+//	else
+//	{
+//		set_freq(20);
+//		set_duty(80);
+//	}
 	/*ADC1->CR |= ADC_CR_ADSTP;
 	ADC1->ISR |= 0xf;
 	while(ADC1->CR == ADC_CR_ADSTART){}
@@ -414,6 +413,18 @@ void reset_reg()
 	RCC->AHBRSTR &= ~RCC_AHBRSTR_DMA1RST;
 	RCC->APB2RSTR &= ~RCC_APB2RSTR_ADCRST;
 	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+}
+
+void process_ble_data(bleData* data) {
+	if (data->buffer[0] == 'W' && data->buffer[1] == 'V') {	// Haptic Feedback packet
+		uint32_t hapticData;
+		char hexString[2] = { data->buffer[8], data->buffer[9] };
+		sscanf(hexString, "%x", &hapticData);
+
+		if (hapticData != 0) {
+			asm("NOP");
+		}
+	}
 }
 
 /* USER CODE END PFP */
@@ -469,7 +480,7 @@ int main(void)
   {
 	  // passes dips to determine if calibration is loaded or created
 	  IMU_Init(!dips);
-	  BLE_Init();
+	  BLE_Init_IT();
   }
   if(dips == 2)
   {
@@ -481,15 +492,28 @@ int main(void)
   //ADC_config();
   HAL_Delay(3000);
   //setup_tim6();
+
+  // Setup BLE Recv
+  HAL_UART_EnableReceiverTimeout(&huart1);
+  BLE_recieve();
+
   HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   //debug_imu();
+  bleData* bt_data = NULL;
+
   while (1)
   {
 	  IMU_read_all_raw();
+
+	  bt_data = BLE_getData();
+
+	  if (bt_data != NULL) {
+		  process_ble_data(bt_data);
+	  }
 	  asm("NOP");
     /* USER CODE END WHILE */
 
