@@ -462,11 +462,12 @@ int main(void)
   dips = go_goDipSwitch();
   HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
   setup_gpio(GPIOA, 1, output, 0, 0);
-  toggle_off(GPIOA, 1);
   setup_tim2();
-  if(dips == 1)
+  toggle_off(GPIOA, 1);
+  if(dips == 0 || dips == 1) // NORMAL OPERATION
   {
-	  IMU_Init();
+	  // passes dips to determine if calibration is loaded or created
+	  IMU_Init(!dips);
 	  BLE_Init();
   }
   if(dips == 2)

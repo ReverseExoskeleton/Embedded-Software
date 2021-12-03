@@ -11,7 +11,8 @@
 #include <stdint.h>
 
 #define EEPROM_baseAddress 0x08080000
-#define EEPROM_imuCalib 0x0	// 12 Bytes of data for Accel and Gyro
+#define EEPROM_acclCalib 0x0	// 6 Bytes of data for Accel
+#define EEPROM_gyroCalib 0x6	// 6 Bytes of data for gyro
 
 // EEPROM Keys
 #define FLASH_PEKEY1 0x89ABCDEF
