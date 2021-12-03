@@ -417,7 +417,7 @@ void darkness()
 {
 	//HAL_UART_Transmit(&huart1, (uint8_t*)sleep, 16, 100);
 	reset_reg();
-	HAL_PWR_EnterSTANDBYMode();
+	HAL_PWR_EnterSTANdDBYMode();
 }
 
 void my_old_friend()
@@ -526,7 +526,7 @@ int main(void)
 
   // Setup BLE Recv
   HAL_UART_EnableReceiverTimeout(&huart1);
-  BLE_receive();
+//  BLE_receive();
 
   HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
