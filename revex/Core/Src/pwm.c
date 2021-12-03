@@ -2,7 +2,7 @@
 
 uint8_t get_freq(uint8_t data)
 {
-	return (data & 0xe);
+	return (data & 0x7);
 }
 
 uint8_t get_duty(uint8_t data)

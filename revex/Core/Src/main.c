@@ -335,8 +335,9 @@ uint16_t print_adc(void)
 {
 	char buffer[20];
 	uint16_t value = AD_RES & 0xffe;
-	int l = sprintf(buffer, "SHW,0018,%04x", value);
-	HAL_UART_Transmit(&huart1, (uint8_t*)buffer, l, 100);
+	//int l = sprintf(buffer, "SHW,0018,%04x", value);
+	//HAL_UART_Transmit(&huart1, (uint8_t*)buffer, l, 100);
+	BLE_transmit(value, 1, 0);
 	return value;
 }
 
@@ -401,10 +402,10 @@ void reset_reg()
 	RCC->IOPRSTR |= RCC_IOPRSTR_GPIOBRST;
 	RCC->IOPRSTR &= ~RCC_IOPRSTR_GPIOBRST;
 	RCC->IOPRSTR &= ~RCC_IOPRSTR_GPIOARST;
-	/*setup_gpio(GPIOA, 6, output, 0, 0);
+	setup_gpio(GPIOA, 6, output, 0, 0);
 	setup_gpio(GPIOA, 8, output, 0, 0);
 	toggle_off(GPIOA, 8);
-	toggle_on(GPIOA, 6);*/
+	toggle_on(GPIOA, 6);
 	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM6RST;
 	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM2RST;
 	RCC->AHBRSTR &= ~RCC_AHBRSTR_DMA1RST;
@@ -424,7 +425,7 @@ void my_old_friend()
 	if(sleep_cnt > 8)
 	{
 		sleep_cnt = 0;
-		darkness();
+		//darkness();
 	}
 }
 
@@ -441,6 +442,22 @@ void reset_sleepcnt()
 int get_sleepcnt()
 {
 	return sleep_cnt;
+}
+
+void process_ble_data(bleData* data) {
+	if (data->buffer[0] == 'W' && data->buffer[1] == 'C') { //Host subscribed
+		//write 1 to char3. find handler
+		//set a flag for wake to enable transmission?
+	}
+	if (data->buffer[0] == 'W' && data->buffer[1] == 'V') {	// Haptic Feedback packet
+		uint32_t hapticData = 0;
+		char hexString[2] = { data->buffer[8], data->buffer[9] };
+		sscanf(hexString, "%x", &hapticData);
+		set_haptic((uint8_t)hapticData);
+		/*if (hapticData != 0) {
+			asm("NOP");
+		}*/
+	}
 }
 
 /* USER CODE END PFP */
@@ -494,29 +511,39 @@ int main(void)
   toggle_off(GPIOA, 1);
   if(dips == 0 || dips == 1) // NORMAL OPERATION
   {
-	  // passes dips to determine if calibration is loaded or created
-	  //IMU_Init(!dips);
-	  BLE_Init();
+	  //passes dips to determine if calibration is loaded or created
+	  IMU_Init(!dips);
+	  BLE_Init_IT();
   }
   if(dips == 2)
   {
 	  HAL_UART_Transmit(&huart1, (uint8_t*)sleep, 16, 100);
 	  reset_reg();
 	  HAL_PWR_EnterSTANDBYMode();
-
   }
   //ADC_config();
-  HAL_Delay(3000);
   //setup_tim6();
+
+  // Setup BLE Recv
+  HAL_UART_EnableReceiverTimeout(&huart1);
+  BLE_receive();
+
   HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  //debug_imu();
+  bleData* bt_data = NULL;
+
   while (1)
   {
 	  IMU_read_all_raw();
+
+	  bt_data = BLE_getData();
+
+	  if (bt_data != NULL) {
+		  process_ble_data(bt_data);
+	  }
 	  asm("NOP");
     /* USER CODE END WHILE */
 

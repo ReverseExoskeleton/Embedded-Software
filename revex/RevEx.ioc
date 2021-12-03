@@ -74,6 +74,7 @@ NVIC.SVC_IRQn=true\:0\:0\:false\:false\:true\:false\:false
 NVIC.SysTick_IRQn=true\:3\:0\:false\:false\:true\:false\:true
 NVIC.TIM3_IRQn=true\:0\:0\:false\:false\:true\:true\:true
 NVIC.TIM6_IRQn=true\:0\:0\:false\:false\:true\:true\:true
+NVIC.USART1_IRQn=true\:0\:0\:false\:false\:true\:true\:true
 PA0.Locked=true
 PA0.Mode=SYS_WakeUp0
 PA0.Signal=SYS_WKUP1
