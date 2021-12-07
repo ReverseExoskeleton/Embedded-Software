@@ -25,6 +25,8 @@ bleState BLE_Init_IT();
 
 void BLE_OTA();
 
+void BLE_lowPower(void);
+
 void BLE_transmit(uint8_t* data, uint16_t length);
 
 bleState BLE_awaitState(bleState state);

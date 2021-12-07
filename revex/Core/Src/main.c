@@ -418,6 +418,7 @@ void reset_reg()
 void darkness()
 {
 	IMU_sleep();	// Put IMU to sleep as well
+	BLE_lowPower();
 	reset_reg();
 	HAL_PWR_EnterSTANDBYMode();
 }

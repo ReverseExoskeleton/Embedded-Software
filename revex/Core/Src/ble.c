@@ -24,6 +24,7 @@ char name[10] = "SN,RevEx\r\n";
 char reboot[5] = "R,1\r\n";
 char MLDP[3] = "I\r\n";
 char Ad[3] = "A\r\n";
+char StopAd[3] = "Y\r\n";
 char reset2[4] = "PZ\r\n";
 char Service[37] = "PS,123456789012345678901234567890FF\r\n";
 char Characteristic1[43] = "PC,12345678901234567890123456789011,12,20\r\n";
@@ -206,6 +207,13 @@ void BLE_OTA()
 	HAL_Delay(1000);
 	HAL_UART_Transmit(&huart1, (uint8_t*)reboot, 5, 10);
 	HAL_Delay(1500);
+}
+
+void BLE_lowPower(void)
+{
+	HAL_UART_Transmit(&huart1, (uint8_t*)StopAd, 3, 10);
+
+	toggle_off(GPIOA, 6);	// Pull BT Line low
 }
 
 void BLE_transmit(uint8_t* data, uint16_t length)
