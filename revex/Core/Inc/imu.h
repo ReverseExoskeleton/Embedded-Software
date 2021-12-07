@@ -15,6 +15,8 @@ void print_imu();
 
 void IMU_read_all();
 
+void IMU_sleep();
+
 int16_t get_magX();
 
 int16_t get_magY();

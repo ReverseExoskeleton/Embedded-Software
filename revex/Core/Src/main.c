@@ -50,6 +50,7 @@ char sleep [16] = "Going to Sleep\r\n";
 char d1 [6] = "dip1\r\n";
 char d2 [6] = "dip2\r\n";
 uint8_t outputData[128];
+uint8_t readyToSend = 0;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -334,7 +335,7 @@ void ADC_config()
 uint16_t print_adc(void)
 {
 	uint16_t value = AD_RES;// & 0xffe;
-	sprintf(outputData, "%04x", value);
+	sprintf((char*)outputData, "%04x", value);
 
 	return value;
 }
@@ -352,6 +353,9 @@ void sample()
 	{
 		sleep_cnt++;
 	}
+
+	if (!readyToSend) { return; }	// Don't send anything yet
+
 	print_imu_raw(outputData);
 
 	BLE_transmit(outputData, 40);
@@ -386,8 +390,6 @@ uint8_t go_goDipSwitch()
 	HAL_Delay(50);
 	uint8_t dip1 = get_gpio(GPIOA, 2);
 	uint8_t dip2 = get_gpio(GPIOA, 3);
-//	if(dip1) HAL_UART_Transmit(&huart1, (uint8_t*)d1, 6, 100);
-//	if(dip2) HAL_UART_Transmit(&huart1, (uint8_t*)d2, 6, 100);
 	uint8_t ret_val = (dip2 << 1) | dip1;
 	return ret_val;
 }
@@ -415,17 +417,17 @@ void reset_reg()
 
 void darkness()
 {
-	//HAL_UART_Transmit(&huart1, (uint8_t*)sleep, 16, 100);
+	IMU_sleep();	// Put IMU to sleep as well
 	reset_reg();
-	HAL_PWR_EnterSTANdDBYMode();
+	HAL_PWR_EnterSTANDBYMode();
 }
 
 void my_old_friend()
 {
-	if(sleep_cnt > 899)
+	if(sleep_cnt > 400)
 	{
 		sleep_cnt = 0;
-		//darkness();
+		darkness();
 	}
 }
 
@@ -446,11 +448,10 @@ int get_sleepcnt()
 
 void process_ble_data(bleData* data) {
 	if (data->buffer[0] == 'W' && data->buffer[1] == 'C') { //Host subscribed
-		//write 1 to char3. find handler
-		//set a flag for wake to enable transmission?
+		readyToSend = 1;	// We are ready to start sending data, someone has subscribed
 	}
 	if (data->buffer[0] == 'W' && data->buffer[1] == 'V') {	// Haptic Feedback packet
-		uint32_t hapticData = 0;
+		unsigned int hapticData = 0;
 		char hexString[2] = { data->buffer[8], data->buffer[9] };
 		sscanf(hexString, "%x", &hapticData);
 		set_haptic((uint8_t)hapticData);
@@ -520,16 +521,10 @@ int main(void)
   }
   if(dips == 2)
   {
-	  HAL_UART_Transmit(&huart1, (uint8_t*)sleep, 16, 100);
-	  reset_reg();
-	  HAL_PWR_EnterSTANDBYMode();
+	  darkness();
   }
   //ADC_config();
   //setup_tim6();
-
-  // Setup BLE Recv
-  HAL_UART_EnableReceiverTimeout(&huart1);
-//  BLE_receive();
 
   HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
@@ -547,6 +542,8 @@ int main(void)
 	  if (bt_data != NULL) {
 		  process_ble_data(bt_data);
 	  }
+
+	  my_old_friend();	// Run here so we don't delay in an IRQ
 	  asm("NOP");
     /* USER CODE END WHILE */
 

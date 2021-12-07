@@ -1,4 +1,5 @@
 #include "tim.h"
+#include "pwm.h"
 
 uint8_t get_freq(uint8_t data)
 {

@@ -2,6 +2,7 @@
 #include "spi.h"
 #include "icm20948.h"
 #include "usart.h"
+#include "eeprom.h"
 #include <stdio.h>
 
 axises my_gyro;
@@ -34,8 +35,11 @@ void icm20948_init(uint8_t loadBias)
 	icm20948_gyro_low_pass_filter(0);
 	icm20948_accel_low_pass_filter(0);
 
-	icm20948_gyro_sample_rate_divider(0);
-	icm20948_accel_sample_rate_divider(0);
+	icm20948_gyro_fchoice(0x1);				// Enables DLPF
+	icm20948_accel_fchoice(0x1);			// Enables DLPF
+
+	icm20948_gyro_sample_rate_divider(10);	// Should set ODR to 102.3 Hz
+	icm20948_accel_sample_rate_divider(10);	// Should set ODR to 102.3 Hz
 
 	if (!loadBias) { EEPROM_unlock(); } // We will be writing in the EEPROM
 
@@ -44,6 +48,13 @@ void icm20948_init(uint8_t loadBias)
 
 	icm20948_gyro_full_scale_select(_500dps);
 	icm20948_accel_full_scale_select(_4g);
+
+	icm20948_gyro_dutyCycle(0x1);
+	icm20948_accel_dutyCycle(0x1);
+
+	icm20948_set_wakeOnMotion(0x1);	// Auto sets threshold to 320 mg
+
+	icm20948_wakeup();
 }
 
 void ak09916_init()
@@ -81,12 +92,9 @@ void print_imu_raw()
 
 void print_imu_raw(uint8_t* outBuffer)
 {
-	char buffer1[50] = {0};
-	char buffer2[50] = {0};
-	char buffer3[50] = {0};
-	int l = sprintf(&(outBuffer[4]), "%02x%02x%02x%02x%02x%02x", ((gyro.x & 0xff00)>>8), (gyro.x & 0xff), ((gyro.y & 0xff00)>>8), (gyro.y & 0xff), ((gyro.z & 0xff00)>>8), (gyro.z & 0xff));
-	int m = sprintf(&(outBuffer[16]), "%02x%02x%02x%02x%02x%02x", ((accel.x & 0xff00)>>8), (accel.x & 0xff), ((accel.y & 0xff00)>>8), (accel.y & 0xff), ((accel.z & 0xff00)>>8), (accel.z & 0xff));
-	int n = sprintf(&(outBuffer[28]), "%02x%02x%02x%02x%02x%02x", ((mag.x & 0xff00)>>8), (mag.x & 0xff), ((mag.y & 0xff00)>>8), (mag.y & 0xff), ((mag.z & 0xff00)>>8), (mag.z & 0xff));
+	sprintf((char*)&(outBuffer[4]), "%02x%02x%02x%02x%02x%02x", ((gyro.x & 0xff00)>>8), (gyro.x & 0xff), ((gyro.y & 0xff00)>>8), (gyro.y & 0xff), ((gyro.z & 0xff00)>>8), (gyro.z & 0xff));
+	sprintf((char*)&(outBuffer[16]), "%02x%02x%02x%02x%02x%02x", ((accel.x & 0xff00)>>8), (accel.x & 0xff), ((accel.y & 0xff00)>>8), (accel.y & 0xff), ((accel.z & 0xff00)>>8), (accel.z & 0xff));
+	sprintf((char*)&(outBuffer[28]), "%02x%02x%02x%02x%02x%02x", ((mag.x & 0xff00)>>8), (mag.x & 0xff), ((mag.y & 0xff00)>>8), (mag.y & 0xff), ((mag.z & 0xff00)>>8), (mag.z & 0xff));
 	//int l = sprintf(buffer1, "%04x%04x%04x", gyro.x, gyro.y, gyro.z);
 	//int m = sprintf(buffer2, "%04x%04x%04x", accel.x, accel.y, accel.z);
 	//int n = sprintf(buffer3, "%04x%04x%04x\r\n", mag.x, mag.y, mag.z);
@@ -95,19 +103,19 @@ void print_imu_raw(uint8_t* outBuffer)
 //	HAL_UART_Transmit(&huart1, (uint8_t*)buffer3, n, 100);
 }
 
+void IMU_sleep()
+{
+	icm20948_sleep();
+}
+
 void IMU_read_all_raw()
 {
-	while(!ak09916_mag_read_raw(&mag) && attempt < 500)
-	{
-		attempt++;
-	}
-
-	if(attempt < 500)
+	// We are now only reading the registers and sampling at ~100Hz
+	if (ak09916_mag_read_raw(&mag)) // Returns false if data not ready
 	{
 		icm20948_gyro_read_raw(&gyro);
 		icm20948_accel_read_raw(&accel);
 	}
-	attempt = 0;
 }
 
 void print_imu()

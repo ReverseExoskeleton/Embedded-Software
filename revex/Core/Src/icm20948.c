@@ -241,7 +241,51 @@ void icm20948_accel_low_pass_filter(uint8_t config)
 	uint8_t new_val = read_single_icm20948_reg(ub_2, B2_ACCEL_CONFIG);
 	new_val |= config << 3;
 
+	write_single_icm20948_reg(ub_2, B2_ACCEL_CONFIG, new_val);
+}
+
+void icm20948_gyro_fchoice(uint8_t enable)
+{
+	uint8_t new_val = read_single_icm20948_reg(ub_2, B2_GYRO_CONFIG_1);
+	new_val |= (enable & 0x1);
+
 	write_single_icm20948_reg(ub_2, B2_GYRO_CONFIG_1, new_val);
+}
+
+void icm20948_accel_fchoice(uint8_t enable)
+{
+	uint8_t new_val = read_single_icm20948_reg(ub_2, B2_ACCEL_CONFIG);
+	new_val |= (enable & 0x1);
+
+	write_single_icm20948_reg(ub_2, B2_ACCEL_CONFIG, new_val);
+}
+
+void icm20948_gyro_dutyCycle(uint8_t enable)
+{
+	uint8_t new_val = read_single_icm20948_reg(ub_0, B0_LP_CONFIG);
+	new_val |= (enable & 0x1) << 4;
+
+	write_single_icm20948_reg(ub_0, B0_LP_CONFIG, new_val);
+
+}
+
+void icm20948_accel_dutyCycle(uint8_t enable)
+{
+	uint8_t new_val = read_single_icm20948_reg(ub_0, B0_LP_CONFIG);
+	new_val |= (enable & 0x1) << 5;
+
+	write_single_icm20948_reg(ub_0, B0_LP_CONFIG, new_val);
+}
+
+icm20948_set_wakeOnMotion(uint8_t enable)
+{
+	write_single_icm20948_reg(ub_2, B2_ACCEL_WOM_THR, 80);	// Sets threshold to 320mg
+
+	// Enables interrupt to propagate to pin 1
+	uint8_t new_val = read_single_icm20948_reg(ub_0, B0_INT_ENABLE);
+	new_val |= (enable & 0x1) << 3;
+
+	write_single_icm20948_reg(ub_0, B0_INT_ENABLE, new_val);
 }
 
 void icm20948_gyro_sample_rate_divider(uint8_t divider)

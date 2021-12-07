@@ -103,8 +103,6 @@ bleState BLE_Init_IT()
 	BLE_data.dataRdy = 0;
 	BLE_data.length = 0;
 
-	BLE_receive();
-
 	memcpy(txBuffer, cmdData, 9);
 
 	if (!retry) {

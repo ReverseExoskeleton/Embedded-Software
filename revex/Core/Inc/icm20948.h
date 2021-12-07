@@ -107,6 +107,14 @@ void icm20948_odr_align_enable();
 void icm20948_gyro_low_pass_filter(uint8_t config); // 0 - 7
 void icm20948_accel_low_pass_filter(uint8_t config); // 0 - 7
 
+void icm20948_gyro_fchoice(uint8_t enable);
+void icm20948_accel_fchoice(uint8_t enable);
+
+void icm20948_gyro_dutyCycle(uint8_t enable);
+void icm20948_accel_dutyCycle(uint8_t enable);
+
+void icm20948_set_wakeOnMotion(uint8_t enable);
+
 // Output Data Rate = 1.125kHz / (1 + divider)
 void icm20948_gyro_sample_rate_divider(uint8_t divider);
 void icm20948_accel_sample_rate_divider(uint16_t divider);
