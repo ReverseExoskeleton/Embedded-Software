@@ -16,20 +16,16 @@ typedef struct {
 } bleInfo;
 
 typedef struct {
-	uint8_t buffer[20];
+	uint8_t buffer[32];
 	uint8_t length;
 	uint8_t dataRdy;
 } bleData;
-
-void BLE_Init();
 
 bleState BLE_Init_IT();
 
 void BLE_OTA();
 
 void BLE_transmit(uint8_t* data, uint16_t length);
-
-void BLE_receive();
 
 bleState BLE_awaitState(bleState state);
 

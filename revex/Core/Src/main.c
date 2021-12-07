@@ -454,9 +454,6 @@ void process_ble_data(bleData* data) {
 		char hexString[2] = { data->buffer[8], data->buffer[9] };
 		sscanf(hexString, "%x", &hapticData);
 		set_haptic((uint8_t)hapticData);
-		/*if (hapticData != 0) {
-			asm("NOP");
-		}*/
 	}
 }
 
@@ -503,6 +500,7 @@ int main(void)
   MX_DMA_Init();
   MX_TIM6_Init();
   MX_ADC_Init();
+
   /* USER CODE BEGIN 2 */
   dips = go_goDipSwitch();
   HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
@@ -639,4 +637,3 @@ void assert_failed(uint8_t *file, uint32_t line)
 }
 #endif /* USE_FULL_ASSERT */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
