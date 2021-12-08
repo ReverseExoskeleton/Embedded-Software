@@ -49,8 +49,9 @@ void icm20948_init(uint8_t loadBias)
 	icm20948_gyro_full_scale_select(_500dps);
 	icm20948_accel_full_scale_select(_4g);
 
-	icm20948_gyro_dutyCycle(0x1);
-	icm20948_accel_dutyCycle(0x1);
+	// Currently disabled since it messes with the IMU measurements
+//	icm20948_gyro_dutyCycle(0x1);
+//	icm20948_accel_dutyCycle(0x1);
 
 	icm20948_set_wakeOnMotion(0x1);	// Auto sets threshold to 320 mg
 
