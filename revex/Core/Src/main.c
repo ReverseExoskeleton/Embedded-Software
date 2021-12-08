@@ -502,7 +502,6 @@ int main(void)
   MX_DMA_Init();
   MX_TIM6_Init();
   MX_ADC_Init();
-
   /* USER CODE BEGIN 2 */
   dips = go_goDipSwitch();
   HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
