@@ -51,6 +51,7 @@ char d1 [6] = "dip1\r\n";
 char d2 [6] = "dip2\r\n";
 uint8_t outputData[128];
 uint8_t readyToSend = 0;
+uint8_t stallSleep  = 0;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -425,7 +426,7 @@ void darkness()
 
 void my_old_friend()
 {
-	if(sleep_cnt > 400)
+	if(sleep_cnt > 400 && !stallSleep)
 	{
 		sleep_cnt = 0;
 		darkness();
@@ -508,20 +509,18 @@ int main(void)
   setup_gpio(GPIOA, 1, output, 0, 0);
   setup_tim2();
   toggle_off(GPIOA, 1);
-  if(dips == 0 || dips == 1) // NORMAL OPERATION
+  if(dips == 0 || dips == 1 || dips == 2) // NORMAL OPERATION
   {
+	  if (dips == 2) { stallSleep = 1; }	// Never go to sleep if mode 2
+
 	  //passes dips to determine if calibration is loaded or created
-	  IMU_Init(!dips);
+	  IMU_Init(dips != 1);
 
 	  bleState bt_state = BLE_ERR;
 
 	  while (bt_state == BLE_ERR) {
 		  bt_state = BLE_Init_IT();
 	  }
-  }
-  if(dips == 2)
-  {
-	  darkness();
   }
   //ADC_config();
   //setup_tim6();
