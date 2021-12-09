@@ -17,7 +17,7 @@ uint8_t command_done = 0;
 
 
 char reset[6] = "SF,2\r\n";
-char config1[13] = "SR,32200000\r\n";
+char config1[13] = "SR,12200000\r\n";
 char config2[13] = "SS,80000001\r\n";
 char ota[13] = "SR,30008000\r\n";
 char name[10] = "SN,RevEx\r\n";
@@ -184,6 +184,8 @@ bleState BLE_Init_IT()
 	BLE_awaitState(BLE_REBOOT);
 	BLE_awaitState(BLE_CMD);
 
+	// We want to wait to advertise until EVERYTHING is init
+
 	BLE_Info.init = 1;
 
 	return;
@@ -214,6 +216,10 @@ void BLE_lowPower(void)
 	HAL_UART_Transmit(&huart1, (uint8_t*)StopAd, 3, 10);
 
 	toggle_off(GPIOA, 6);	// Pull BT Line low
+}
+
+void BLE_adv(void) {
+	HAL_UART_Transmit(&huart1, (uint8_t*)Ad, 3, 10);
 }
 
 void BLE_transmit(uint8_t* data, uint16_t length)

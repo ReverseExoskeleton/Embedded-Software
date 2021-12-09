@@ -50,7 +50,7 @@ char sleep [16] = "Going to Sleep\r\n";
 char d1 [6] = "dip1\r\n";
 char d2 [6] = "dip2\r\n";
 uint8_t outputData[128];
-uint8_t readyToSend = 0;
+uint8_t readyToSend = 1;
 uint8_t stallSleep  = 0;
 /* USER CODE END PTD */
 
@@ -248,8 +248,9 @@ void setup_tim2()
     //TIM2->EGR |= TIM_EGR_UG; // TIM_EGR_CC2G;
     TIM2->CCMR1 |= TIM_CCMR1_OC2PE + TIM_CCMR1_OC2M_2 + TIM_CCMR1_OC2M_1;
     TIM2->PSC = 16000;
-    TIM2->ARR = 50;
-    TIM2->CCR2 = 40;
+
+    set_haptic(0x0);	//init at 0 haptic
+
     TIM2->CCER |= TIM_CCER_CC2E;
     TIM2->CR1 |= TIM_CR1_CEN;
     TIM2->EGR |= TIM_EGR_UG;
@@ -452,11 +453,14 @@ void process_ble_data(bleData* data) {
 	if (data->buffer[0] == 'W' && data->buffer[1] == 'C') { //Host subscribed
 		readyToSend = 1;	// We are ready to start sending data, someone has subscribed
 	}
-	if (data->buffer[0] == 'W' && data->buffer[1] == 'V') {	// Haptic Feedback packet
+	else if (data->buffer[0] == 'W' && data->buffer[1] == 'V') {	// Haptic Feedback packet
 		unsigned int hapticData = 0;
 		char hexString[2] = { data->buffer[8], data->buffer[9] };
 		sscanf(hexString, "%x", &hapticData);
 		set_haptic((uint8_t)hapticData);
+	}
+	else if (data->buffer[0] == 'A' && data->buffer[1] == 'O') {
+		// Aok do nothing
 	}
 }
 
@@ -524,14 +528,14 @@ int main(void)
   }
   //ADC_config();
   //setup_tim6();
+  BLE_adv();	// Now everything is setup, adv
+  bleData* bt_data = NULL;
 
   HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  bleData* bt_data = NULL;
-
   while (1)
   {
 	  IMU_read_all_raw();
