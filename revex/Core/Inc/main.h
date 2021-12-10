@@ -61,9 +61,10 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 void sample();
-uint16_t print_adc();
+void battery();
 void setup_gpio(GPIO_TypeDef  *GPIOx, int num, enum mode m, int pupd, int speed);
 int get_gpio(GPIO_TypeDef  *GPIOx, int num);
+uint8_t * get_buff();
 void my_old_friend();
 void darkness();
 void toggle_on(GPIO_TypeDef  *GPIOx, int num);

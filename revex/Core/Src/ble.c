@@ -11,7 +11,8 @@ bleData BLE_data;
 uint8_t usart_flag = 0;
 uint8_t waiting = 0;
 uint8_t commandBuffer[30] = {0};
-uint8_t txBuffer[64];
+uint8_t txBuffer1[64];
+uint8_t txBuffer2[64];
 uint8_t command_ind = 0;
 uint8_t command_done = 0;
 
@@ -30,7 +31,8 @@ char Service[37] = "PS,123456789012345678901234567890FF\r\n";
 char Characteristic1[43] = "PC,12345678901234567890123456789011,12,20\r\n";
 char Characteristic2[43] = "PC,12345678901234567890123456789022,14,02\r\n";
 char Characteristic3[43] = "PC,12345678901234567890123456789033,12,04\r\n";
-char cmdData[9] = "SHW,0018,";
+char cmdData1[9] = "SHW,0018,";
+char cmdData3[9] = "SHW,001E,";
 char ret[2] = "\n\r";
 
 
@@ -103,8 +105,6 @@ bleState BLE_Init_IT()
 
 	BLE_data.dataRdy = 0;
 	BLE_data.length = 0;
-
-	memcpy(txBuffer, cmdData, 9);
 
 	if (!retry) {
 		setup_gpio(GPIOA, 6, output, 0, 0);
@@ -188,7 +188,7 @@ bleState BLE_Init_IT()
 
 	BLE_Info.init = 1;
 
-	return;
+	return BLE_Info.currentState;
 }
 
 void BLE_OTA()
@@ -224,12 +224,27 @@ void BLE_adv(void) {
 
 void BLE_transmit(uint8_t* data, uint16_t length)
 {
-	memcpy(&(txBuffer[9]), data, length);
+	if(length == 40)
+	{
+		memcpy(txBuffer1, cmdData1, 9);
 
-	memcpy(&(txBuffer[49]), ret, 2);
+		memcpy(&(txBuffer1[9]), data + 4, length);
 
-	HAL_UART_Transmit(&huart1, txBuffer, length + 11, 10);
-//	HAL_UART_Transmit_DMA(&huart1, data, length);
+		memcpy(&(txBuffer1[49]), ret, 2);
+		HAL_UART_Transmit(&huart1, txBuffer1, length + 11, 20);
+		//HAL_UART_Transmit_DMA(&huart1, data, length);
+	}
+	else
+	{
+		memcpy(txBuffer2, cmdData3, 9);
+
+		memcpy(&(txBuffer2[9]), data, length);
+
+		memcpy(&(txBuffer2[13]), ret, 2);
+
+		HAL_UART_Transmit(&huart1, txBuffer2, length + 11, 20);
+		//HAL_UART_Transmit_DMA(&huart1, data, length);
+	}
 }
 
 bleState BLE_awaitState(bleState state) {

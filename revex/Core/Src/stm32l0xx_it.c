@@ -23,6 +23,7 @@
 #include "stm32l0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "adc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,8 +58,8 @@
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc;
-extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim7;
 extern DMA_HandleTypeDef hdma_usart1_rx;
 extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
@@ -151,7 +152,7 @@ void SysTick_Handler(void)
 void DMA1_Channel1_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
-	//print_ad();
+	print_adc(get_buff());
   /* USER CODE END DMA1_Channel1_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_adc);
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
@@ -174,20 +175,6 @@ void DMA1_Channel2_3_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM3 global interrupt.
-  */
-void TIM3_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM3_IRQn 0 */
-
-  /* USER CODE END TIM3_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim3);
-  /* USER CODE BEGIN TIM3_IRQn 1 */
-
-  /* USER CODE END TIM3_IRQn 1 */
-}
-
-/**
   * @brief This function handles TIM6 global interrupt.
   */
 void TIM6_IRQHandler(void)
@@ -200,6 +187,20 @@ void TIM6_IRQHandler(void)
   /* USER CODE BEGIN TIM6_IRQn 1 */
 	//TIM6->EGR |= TIM_EGR_UG;
   /* USER CODE END TIM6_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM7 global interrupt.
+  */
+void TIM7_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM7_IRQn 0 */
+	battery();
+  /* USER CODE END TIM7_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim7);
+  /* USER CODE BEGIN TIM7_IRQn 1 */
+
+  /* USER CODE END TIM7_IRQn 1 */
 }
 
 /**
