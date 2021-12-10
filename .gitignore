@@ -1,7 +1,7 @@
 .metadata/
-revex/Debug
+revex/Debug/*
 revex/.settings/*
 revex/.mxproject
 revex/.cproject
-Debug.launch
+revex/RevEx Debug.launch
 
