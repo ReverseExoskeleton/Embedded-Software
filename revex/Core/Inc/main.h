@@ -61,6 +61,7 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 void sample();
+void battery();
 void setup_gpio(GPIO_TypeDef  *GPIOx, int num, enum mode m, int pupd, int speed);
 int get_gpio(GPIO_TypeDef  *GPIOx, int num);
 uint8_t * get_buff();

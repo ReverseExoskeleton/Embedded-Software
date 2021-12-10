@@ -170,8 +170,8 @@ void print_adc(uint8_t* outBuffer)
 {
 	uint16_t value1 = AD_RES[0];
 	uint16_t value2 = AD_RES[1];
-	sprintf((char*)&(outBuffer[0]), "%04x", value1);
-	sprintf((char*)&(outBuffer[4]), "%04x", value2);
+	sprintf((char*)&(outBuffer[0]), "%04x", value2);
+	sprintf((char*)&(outBuffer[4]), "%04x", value1);
 }
 
 uint16_t sample_adc()

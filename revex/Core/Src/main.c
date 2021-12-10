@@ -335,6 +335,11 @@ uint8_t * get_buff(void)
 	return outputData;
 }
 
+void battery()
+{
+	BLE_transmit(outputData, 4);
+}
+
 void sample()
 {
 	uint16_t value = sample_adc();
@@ -352,7 +357,7 @@ void sample()
 
 	sample_imu_raw(outputData);
 
-	BLE_transmit(outputData, 44);
+	BLE_transmit(outputData, 40);
 	/*ADC1->CR |= ADC_CR_ADSTP;
 	ADC1->ISR |= 0xf;
 	while(ADC1->CR == ADC_CR_ADSTART){}
@@ -519,6 +524,7 @@ int main(void)
   //setup_tim6();
 
   HAL_TIM_Base_Start_IT(&htim6);
+  //HAL_TIM_Base_Start_IT(&htim7);
   /* USER CODE END 2 */
 
   /* Infinite loop */
