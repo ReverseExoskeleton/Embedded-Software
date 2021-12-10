@@ -103,6 +103,9 @@ bleState BLE_Init_IT()
 	BLE_Info.awaitingState = BLE_FREE;
 	BLE_Info.init = 0;
 
+	memcpy(txBuffer1, cmdData1, 9);
+	memcpy(txBuffer2, cmdData3, 9);
+
 	BLE_data.dataRdy = 0;
 	BLE_data.length = 0;
 
@@ -113,7 +116,7 @@ bleState BLE_Init_IT()
 
 	toggle_off(GPIOA, 6);
 	toggle_off(GPIOA, 8);
-	HAL_Delay(4000);
+	HAL_Delay(200);
 	BLE_Info.currentState = BLE_FREE;
 	toggle_on(GPIOA, 6);
 	BLE_awaitState(BLE_CMD);
@@ -220,24 +223,20 @@ void BLE_transmit(uint8_t* data, uint16_t length)
 {
 	if(length == 40)
 	{
-		memcpy(txBuffer1, cmdData1, 9);
-
 		memcpy(&(txBuffer1[9]), data + 4, length);
 
 		memcpy(&(txBuffer1[49]), ret, 2);
-		HAL_UART_Transmit(&huart1, txBuffer1, length + 11, 20);
+		HAL_UART_Transmit(&huart1, txBuffer1, length + 11, 10);
 		//HAL_UART_Transmit_DMA(&huart1, data, length);
 	}
 	else
 	{
-		memcpy(txBuffer2, cmdData3, 9);
-
 		memcpy(&(txBuffer2[9]), data, length);
 
 		memcpy(&(txBuffer2[13]), ret, 2);
 
-		HAL_UART_Transmit(&huart1, txBuffer2, length + 11, 20);
-		//HAL_UART_Transmit_DMA(&huart1, data, length);
+		HAL_UART_Transmit(&huart1, txBuffer2, length + 11, 10);
+		HAL_UART_Transmit_DMA(&huart1, data, length);
 	}
 }
 
