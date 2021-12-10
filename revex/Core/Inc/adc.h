@@ -35,7 +35,9 @@ extern "C" {
 extern ADC_HandleTypeDef hadc;
 
 /* USER CODE BEGIN Private defines */
+void print_adc(uint8_t* outBuffer);
 
+uint16_t sample_adc();
 /* USER CODE END Private defines */
 
 void MX_ADC_Init(void);

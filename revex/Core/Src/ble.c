@@ -27,7 +27,7 @@ char Ad[3] = "A\r\n";
 char StopAd[3] = "Y\r\n";
 char reset2[4] = "PZ\r\n";
 char Service[37] = "PS,123456789012345678901234567890FF\r\n";
-char Characteristic1[43] = "PC,12345678901234567890123456789011,12,20\r\n";
+char Characteristic1[43] = "PC,12345678901234567890123456789011,12,22\r\n";
 char Characteristic2[43] = "PC,12345678901234567890123456789022,14,02\r\n";
 char Characteristic3[43] = "PC,12345678901234567890123456789033,12,04\r\n";
 char cmdData[9] = "SHW,0018,";
@@ -186,7 +186,7 @@ bleState BLE_Init_IT()
 
 	BLE_Info.init = 1;
 
-	return;
+	return BLE_Info.currentState;
 }
 
 void BLE_OTA()
@@ -220,7 +220,7 @@ void BLE_transmit(uint8_t* data, uint16_t length)
 {
 	memcpy(&(txBuffer[9]), data, length);
 
-	memcpy(&(txBuffer[49]), ret, 2);
+	memcpy(&(txBuffer[53]), ret, 2);
 
 	HAL_UART_Transmit(&huart1, txBuffer, length + 11, 10);
 //	HAL_UART_Transmit_DMA(&huart1, data, length);

@@ -38,19 +38,16 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-uint32_t AD_RES = 0;
 uint32_t Period = 0;
 uint32_t Duty_cycle = 1000;
 uint32_t val = 0;
 uint32_t sleep_cnt = 0;
 uint16_t old = 0;
 int gate = 0;
-char temp [50] = "hello\r\n";
-char sleep [16] = "Going to Sleep\r\n";
 char d1 [6] = "dip1\r\n";
 char d2 [6] = "dip2\r\n";
 uint8_t outputData[128];
-uint8_t readyToSend = 0;
+uint8_t readyToSend = 1;
 uint8_t stallSleep  = 0;
 /* USER CODE END PTD */
 
@@ -305,7 +302,7 @@ void ADC_config()
 	setup_gpio(GPIOA, 7, analog, 0, 1);
 	DMA1_CSELR->CSELR &= (uint32_t)(~DMA_CSELR_C1S);
 	DMA1_Channel1->CPAR = (uint32_t) (&(ADC1->DR));
-	DMA1_Channel1->CMAR = (uint32_t) (&AD_RES);
+	//DMA1_Channel1->CMAR = (uint32_t) (&AD_RES);
 	DMA1_Channel1->CNDTR = 1;
 	DMA1_Channel1->CCR |= DMA_CCR_MSIZE_0 | DMA_CCR_PSIZE_0 | DMA_CCR_TEIE | DMA_CCR_TCIE | DMA_CCR_CIRC;
 	DMA1_Channel1->CCR |= DMA_CCR_EN;
@@ -333,18 +330,14 @@ void ADC_config()
 	}
 }
 
-uint16_t print_adc(void)
+uint8_t * get_buff(void)
 {
-	uint16_t value = AD_RES;// & 0xffe;
-	sprintf((char*)outputData, "%04x", value);
-
-	return value;
+	return outputData;
 }
 
 void sample()
 {
-	HAL_ADC_Start_DMA(&hadc, &AD_RES, 1);
-	uint16_t value = print_adc();
+	uint16_t value = sample_adc();
 	if(value > old + 6 || value < old - 6)
 	{
 		old = value;
@@ -357,9 +350,9 @@ void sample()
 
 	if (!readyToSend) { return; }	// Don't send anything yet
 
-	print_imu_raw(outputData);
+	sample_imu_raw(outputData);
 
-	BLE_transmit(outputData, 40);
+	BLE_transmit(outputData, 44);
 	/*ADC1->CR |= ADC_CR_ADSTP;
 	ADC1->ISR |= 0xf;
 	while(ADC1->CR == ADC_CR_ADSTART){}
@@ -496,13 +489,13 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_TIM3_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
   MX_USART1_UART_Init();
   MX_DMA_Init();
   MX_TIM6_Init();
   MX_ADC_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
   dips = go_goDipSwitch();
   HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);

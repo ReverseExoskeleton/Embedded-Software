@@ -1,5 +1,5 @@
 .metadata/
-revex/Debug/*
+revex/Debug
 revex/.settings/*
 revex/.mxproject
 revex/.cproject
