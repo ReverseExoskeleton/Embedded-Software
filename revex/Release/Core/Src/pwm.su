@@ -1,0 +1,3 @@
+pwm.c:4:9:get_freq	0	static
+pwm.c:9:9:get_duty	0	static
+pwm.c:14:6:set_haptic	16	static

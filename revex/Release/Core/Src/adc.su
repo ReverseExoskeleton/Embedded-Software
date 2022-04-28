@@ -1,0 +1,5 @@
+adc.c:33:6:MX_ADC_Init	16	static
+adc.c:89:6:HAL_ADC_MspInit	56	static
+adc.c:141:6:HAL_ADC_MspDeInit	8	static
+adc.c:169:6:print_adc	16	static
+adc.c:177:10:sample_adc	8	static

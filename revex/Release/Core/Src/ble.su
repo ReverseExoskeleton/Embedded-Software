@@ -1,0 +1,10 @@
+ble.c:243:10:BLE_awaitState.part.0	8	static
+ble.c:39:6:process_response	0	static
+ble.c:59:6:HAL_UART_RxCpltCallback	8	static
+ble.c:72:6:HAL_UART_ErrorCallback	8	static
+ble.c:195:6:BLE_OTA	32	static
+ble.c:215:6:BLE_lowPower	8	static
+ble.c:222:6:BLE_transmit	24	static
+ble.c:243:10:BLE_awaitState	8	static
+ble.c:94:10:BLE_Init_IT	40	static
+ble.c:261:10:BLE_getData	0	static

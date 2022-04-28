@@ -1,0 +1,15 @@
+imu.c:73:6:IMU_Init	8	static
+imu.c:94:6:sample_imu_raw	40	static
+imu.c:107:6:IMU_sleep	8	static
+imu.c:112:6:IMU_read_all_raw	8	static
+imu.c:122:6:print_imu	160	static
+imu.c:129:6:IMU_read_all	16	static
+imu.c:144:9:get_magX	8	static
+imu.c:149:9:get_magY	8	static
+imu.c:154:9:get_magZ	8	static
+imu.c:159:9:get_gyroX	8	static
+imu.c:164:9:get_gyroY	8	static
+imu.c:169:9:get_gyroZ	8	static
+imu.c:174:9:get_accelX	8	static
+imu.c:179:9:get_accelY	8	static
+imu.c:184:9:get_accelZ	8	static
